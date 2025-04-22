@@ -13,6 +13,7 @@ gravitic_duel/
 ├── controls.py       # Input handling logic
 ├── ui.py             # Functions for drawing HUD elements, messages, orbits
 ├── utils.py          # (Optional) Common utility functions (e.g., asset loading)
+├── dev_modes.py      # Development mode handlers for testing different game features
 │
 └── assets/
     ├── background.png
@@ -39,5 +40,7 @@ gravitic_duel/
 * **`ui.py`**: Contains functions dedicated to rendering the User Interface (UI) elements onto the game screen. This includes drawing the Heads-Up Display (HUD) components (health bars, scores, timers), rendering text messages (like "Round Over", "Game Over"), and potentially visualizing game elements like orbital paths for debugging or gameplay clarity.
 
 * **`utils.py`**: (Optional) A collection of general-purpose helper functions that could be useful across multiple modules. For instance, it might contain a robust function for loading images with error handling or color manipulation utilities.
+
+* **`dev_modes.py`**: Contains functions for handling different development modes used for testing and debugging. Each development mode focuses on a specific aspect of the game (e.g., asset loading, physics simulation, collision detection). The module provides a centralized way to manage these testing modes, keeping the main game loop clean and focused on the actual game logic.
 
 * **`assets/images/`**: Directory storing all necessary image assets, typically in `.png` format with transparency where needed.

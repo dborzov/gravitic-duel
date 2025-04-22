@@ -11,25 +11,14 @@ This document describes the expected behavior and testing criteria for each `--d
 <br><br>
 
 * **Command:** `python3 gravitic_duel/main.py --dev-mode=2`
-    * **Expected View:** A fullscreen window displaying the static `background.png` image.
+    * **Expected View:** On top of the background closer to the screen center are rendered the rocket.png sprite frame, missile.png missile frame, and below it explosition.png explosion frame with the alpha frame in the background.
     * **Interaction:** Pressing `ESC` or closing the window quits. No other interaction.
 
 <br><br>
+
 
 * **Command:** `python3 gravitic_duel/main.py --dev-mode=3`
-    * **Expected View:** The space background is displayed. The `star.png` sprite is visible (likely centered). Several static colored circles representing the planets and smaller static colored circles representing moons are visible at their calculated initial orbital positions.
-    * **Interaction:** Pressing `ESC` or closing the window quits. No other interaction.
-
-<br><br>
-
-* **Command:** `python3 gravitic_duel/main.py --dev-mode=4`
-    * **Expected View:** The space background and star sprite are visible. The colored circles representing planets orbit the star. The smaller colored circles representing moons orbit their respective planets. Movement should appear smooth.
-    * **Interaction:** Pressing `ESC` or closing the window quits. No other interaction.
-
-<br><br>
-
-* **Command:** `python3 gravitic_duel/main.py --dev-mode=5`
-    * **Expected View:** Background, orbiting star/planets/moons are visible. Two static `rocket.png` sprites are visible at their designated starting positions.
+    * **Expected View:** Planets orbit the star, and moons orbit the planets. The planets and moons are drawn as differently colored circles. There are subtle semi-transparent orbit traces as cirlces giving the player a hint of where the orbit is. Each game loop tick the positions of all these entities are updated.
     * **Interaction:** Pressing `ESC` or closing the window quits. No other interaction.
 
 <br><br>

@@ -10,3 +10,6 @@ WHITE = (255, 255, 255)
 # Font settings
 FONT_SIZE = 48
 FONT_NAME = None  # Will use Pygame's default font
+
+# Asset directories
+IMG_DIR = "assets"

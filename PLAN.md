@@ -27,13 +27,27 @@ This document outlines the step-by-step process for building the Gravitic Duel P
 
 ### Step 2: Asset Loading & Background (`--dev-mode=2`)
 
-* **Instruction:** Implement Step 2. Create an asset loading mechanism. Optionally use `utils.py` for a `load_image` function handling path joining (`settings.IMG_DIR`) and loading (`pygame.image.load`, `convert_alpha()`). In `main.py`, create a global `assets` dictionary. Implement `load_assets()` to load all images specified in `SPEC.md`/`FILES.md` into the `assets` dict using their base filenames as keys (e.g., `assets['background']`). Call `load_assets()` once after `pygame.init()`. Modify the main loop: always blit `assets['background']` first. If `dev_mode == 2`, show only the background. If `dev_mode == 1`, show background *and* the Step 1 text.
+* **Instruction:** Implement dev-mode=2 by implementing the loading of image assets. Create an asset loading mechanism. Use `utils.py` for a `load_image` function handling path joining (`settings.IMG_DIR`) and loading (`pygame.image.load`, `convert_alpha()`). In `main.py`, create a global `assets` dictionary. Implement `load_assets()` to load all images specified in `SPEC.md`/`FILES.md` into the `assets` dict using their base filenames as keys (e.g., `assets['background']`). Call `load_assets()` once after `pygame.init()`. Modify the main loop: always blit `assets['background']` first. If `dev_mode == 2`, show all the assets in the background so that it can be verified that the transparent parts are indeed rendered transparently.
 
 <br><br>
 
-### Step 3: Static Celestial Bodies (`--dev-mode=3`)
+### Step 3: Celestial Bodies (`--dev-mode=3`)
 
-* **Instruction:** Implement Step 3. In `entities.py`, define `GameObject(pygame.sprite.Sprite)` base class storing `position` (Vector2), `image`, `rect`. Define `CelestialBody(GameObject)` storing `mass_proxy`. Define `Star(CelestialBody)`. Define `Planet(CelestialBody)` storing orbit parameters (`orbit_radius`, `orbit_speed`, `start_angle` from `constants.py`), color, and size. Define `Moon(CelestialBody)` similarly, storing reference to its parent planet. In `main.py`, create sprite groups (`all_sprites`, `celestial_bodies`). Implement `setup_celestial_bodies(assets)`: Create the `Star` instance using `assets['star']` at screen center. Iterate through `constants.PLANET_DEFINITIONS`: Calculate initial static position, create `Planet` instance (pass color, size, position; *do not* load image), add to groups. For each planet's moons, calculate static position relative to planet, create `Moon` instance (pass color, size, position), add to groups. Call this setup function. In the main loop, draw `all_sprites`. For dev mode 3, show background and static bodies.
+
+Implement everyting needed for dev-mode=3 where entities and physics of all the entities that do not depend on the players are defined.
+
+
+Specifically, implement everything needed for planets, moons and the star inside `entities.py` and in the main loop.
+
+Define `GameObject(pygame.sprite.Sprite)` base class storing `position` (Vector2), `image`, `rect`. 
+
+Define `CelestialBody(GameObject)` storing `mass_proxy`. Define `Star(CelestialBody)`. Define `Planet(CelestialBody)` storing orbit parameters (`orbit_radius`, `orbit_speed`, `start_angle` from `constants.py`), color, and size. Define `Moon(CelestialBody)` similarly, storing reference to its parent planet. In `main.py`, create sprite groups (`all_sprites`, `celestial_bodies`). Implement `setup_celestial_bodies(assets)`: Create the `Star` instance at screen center. Iterate through `constants.PLANET_DEFINITIONS`: Calculate initial static position, create `Planet` instance (pass color, size, position; *do not* load image), add to groups. For each planet's moons, calculate static position relative to planet, create `Moon` instance (pass color, size, position), add to groups. Call this setup function. In the main loop, draw `all_sprites`. 
+
+Make updates to the positions of planets and moons in the main game loop.
+
+Make everything so that when launching the game the following is shown:
+**Expected View:** Planets orbit the star, and moons orbit the planets. The planets and moons are drawn as differently colored circles. There are subtle semi-transparent orbit traces as cirlces giving the player a hint of where the orbit is. Each game loop tick the positions of all these entities are updated.
+ **Interaction:** Pressing `ESC` or closing the window quits. No other interaction.
 
 <br><br>
 
