@@ -49,23 +49,27 @@ Make everything so that when launching the game the following is shown:
 **Expected View:** Planets orbit the star, and moons orbit the planets. The planets and moons are drawn as differently colored circles. There are subtle semi-transparent orbit traces as cirlces giving the player a hint of where the orbit is. Each game loop tick the positions of all these entities are updated.
  **Interaction:** Pressing `ESC` or closing the window quits. No other interaction.
 
-<br><br>
 
-### Step 4: Orbiting Celestial Bodies (`--dev-mode=4`)
+### Step 4: A Rocket 
 
-* **Instruction:** Implement Step 4. In `entities.py`, add `update(dt)` methods to `Planet` and `Moon`. Implement circular orbit logic: update internal angle based on `orbit_speed`, recalculate `position` vector based on angle, radius, and center of orbit (star's position for planets, parent planet's current position for moons). Update `self.rect.center` from `self.position`. In `main.py`, calculate `dt` (time delta) each frame. Call `all_sprites.update(dt)` in the main loop before drawing. Ensure planets update before moons if needed. For dev mode 4, show background and orbiting bodies.
+* **Instruction:** Let's implement the parts that are needed to achieve dev-mode=4. In `entities.py`, define `Rocket(GameObject)` storing `player_id`, `hp`, `score`, `last_fire_time`, `velocity` (Vector2). In `main.py`, create `rockets` group. In `load_assets`, ensure `assets['rocket']` is loaded. Implement `setup_players(assets)`: Create two `Rocket` instances at specified start positions using `assets['rocket']`, add them to `all_sprites` and `rockets`. Call this setup function. For dev mode 5, show background, orbiting bodies, and static rockets.
 
-<br><br>
+ In `controls.py`, implement `process_input()` checking pressed keys (`settings` for key maps) and returning thrust vectors (Vector2) for each player based on `constants.THRUST_ACCEL`. In `entities.py`, modify `Rocket.update(dt, thrust_vector)`: Apply thrust to velocity (`velocity += thrust_vector * dt`), update position (`position += velocity * dt`), update rect center. In `main.py`, get thrust vectors from `controls.process_input()`. Update the rocket by calling its `update` method, passing the respective thrust vector and `dt`. Enable rocket movement via WASD keys.
 
-### Step 5: Static Rockets (`--dev-mode=5`)
+ Implement rocket animation. When `W/A/S/D` keys are pressed, show the rocket as RocketSprites.active (with rocket thrusters on), and when the keys are not pressed, show the rocket as RocketSprites.active.
 
-* **Instruction:** Implement Step 5. In `entities.py`, define `Rocket(GameObject)` storing `player_id`, `hp`, `score`, `last_fire_time`, `velocity` (Vector2). In `main.py`, create `rockets` group. In `load_assets`, ensure `assets['rocket']` is loaded. Implement `setup_players(assets)`: Create two `Rocket` instances at specified start positions using `assets['rocket']`, add them to `all_sprites` and `rockets`. Call this setup function. For dev mode 5, show background, orbiting bodies, and static rockets.
+ The rocket sprite must be rotated around the center when shown depending on situation. When the `W/A/S/D` keys are pressed, the rocket sprite is rotated so that the rocket is pointing at the direction towards which the key points:
+ * For `W` (up) do not rotate the sprite as the rocket of the sprite is pointing up;
+ * For `D` key (right) rotate the sprite by 90 degrees clockwise so that the sprite is pointing right; 
+* For `A` key (left) rotate the sprite by 90 degrees counter-clockwise so that the sprite is pointing left;
 
-<br><br>
+When the `W/A/S/D` key is not pressed, the rocket's rotation angle is pointing in the direction where the velocity vetor is pointing at.
 
-### Step 6: Rocket Control & Basic Movement (`--dev-mode=6`)
+The goal of this change is to implement the following functionality:
 
-* **Instruction:** Implement Step 6. In `controls.py`, implement `process_input()` checking pressed keys (`settings` for key maps) and returning thrust vectors (Vector2) for each player based on `constants.THRUST_ACCEL`. In `entities.py`, modify `Rocket.update(dt, thrust_vector)`: Apply thrust to velocity (`velocity += thrust_vector * dt`), update position (`position += velocity * dt`), update rect center. In `main.py`, get thrust vectors from `controls.process_input()`. Update rockets individually by calling their `update` method, passing the respective thrust vector and `dt`. For dev mode 6, enable rocket movement via WASD/Numpad.
+* **Command:** `python3 gravitic_duel/main.py --dev-mode=4`
+    * **Expected View:** Planetary motion is still visible. Now there is also a rocket of the player 1 that moves based on inertia with the speed that stays constant, unless user-controlled thrusters change it. Bottom left of the screen has little text that shows the values of the rocket's velocity vector. At this stage there is no collision mechanics between the rockets and everything else, nor is there gravity force. 
+    * **Interaction:** Pressing `W/A/S/D` applies thrust to Player 1's rocket, causing it to accelerate and move with inertia. Pressing `ESC` quits.
 
 <br><br>
 

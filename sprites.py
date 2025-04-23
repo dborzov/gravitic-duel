@@ -1,7 +1,7 @@
 import os
 import sys
-import pygame
 from settings import IMG_DIR, SCREEN_WIDTH, SCREEN_HEIGHT
+import pygame
 
 def _load_image(filename):
     """

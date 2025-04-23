@@ -23,9 +23,9 @@ This document describes the expected behavior and testing criteria for each `--d
 
 <br><br>
 
-* **Command:** `python3 gravitic_duel/main.py --dev-mode=6`
-    * **Expected View:** Background, orbiting bodies, and two rockets are visible.
-    * **Interaction:** Pressing `W/A/S/D` applies thrust to Player 1's rocket, causing it to accelerate and move with inertia. Pressing `Numpad 8/4/2/6` applies thrust to Player 2's rocket similarly. Pressing `ESC` quits.
+* **Command:** `python3 gravitic_duel/main.py --dev-mode=4`
+    * **Expected View:** Planetary motion is still visible. Now there is also a rocket of the player 1 that moves based on inertia with the speed that stays constant, unless user-controlled thrusters change it. Bottom left of the screen has little text that shows the values of the rocket's velocity vector. At this stage there is no collision mechanics between the rockets and everything else, nor is there gravity force. 
+    * **Interaction:** Pressing `W/A/S/D` applies thrust to Player 1's rocket, causing it to accelerate and move with inertia. Pressing `ESC` quits.
 
 <br><br>
 

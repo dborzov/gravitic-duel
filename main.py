@@ -7,16 +7,20 @@ from pygame.math import Vector2
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK, IMG_DIR
 import ui
 import dev_modes
+import controls
+import physics
 from sprites import GameSprites
-from entities import Star, Planet, Moon
-from constants import SOLAR_SYSTEM
+from entities import Star, Planet, Moon, Rocket
+from constants import SOLAR_SYSTEM, ROCKET_HP
 
 # Global sprites object
 sprites = None
 
 # Sprite groups
-all_sprites = None
-celestial_bodies = None
+all_entities = None
+star = None
+rocket1, rocket2 = None, None
+missiles = None
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -41,20 +45,17 @@ def load_assets():
 
 def setup_celestial_bodies():
     """Set up the star, planets, and moons."""
-    global all_sprites, celestial_bodies
-    
+    global all_entities, star
     # Create sprite groups
-    all_sprites = pygame.sprite.Group()
-    celestial_bodies = pygame.sprite.Group()
+    all_entities = pygame.sprite.Group()
     
-    # Create the star at the specified position
+    # Calculate the star's initial position based on rotation parameters
     star_pos = Vector2(
-        SCREEN_WIDTH // 2 + SOLAR_SYSTEM['star']['position']['x'],
-        SCREEN_HEIGHT // 2 + SOLAR_SYSTEM['star']['position']['y']
+        SCREEN_WIDTH // 2 + SOLAR_SYSTEM['star']['rotate_center']['x'] + SOLAR_SYSTEM['star']['rotate_radius'],
+        SCREEN_HEIGHT // 2 + SOLAR_SYSTEM['star']['rotate_center']['y']
     )
     star = Star(star_pos, sprites.star)
-    all_sprites.add(star)
-    celestial_bodies.add(star)
+    all_entities.add(star)
     
     # Create planets and moons
     for planet_def in SOLAR_SYSTEM['planets']:
@@ -74,8 +75,11 @@ def setup_celestial_bodies():
             start_angle=planet_def['start_angle']
         )
         
-        all_sprites.add(planet)
-        celestial_bodies.add(planet)
+        # Link planet to star
+        planet.star = star
+        star.add_planet(planet)
+        
+        all_entities.add(planet)
         
         # Create moons for this planet
         for moon_def in planet_def['moons']:
@@ -95,54 +99,69 @@ def setup_celestial_bodies():
                 start_angle=moon_def['start_angle']
             )
             
-            all_sprites.add(moon)
-            celestial_bodies.add(moon)
+            all_entities.add(moon)
             planet.add_moon(moon)
 
-def draw_orbit_traces(screen, center_pos):
+
+def setup_players():
+    """Set up the player rockets."""
+    global all_entities, rocket1, rocket2, missiles
+    
+    # Create sprite groups
+    missiles = pygame.sprite.Group()
+    
+    # Create Player 1's rocket
+    p1_pos = Vector2(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+    rocket1 = Rocket(p1_pos, 1, sprites.rocket.active, sprites.rocket.inactive)
+    rocket1.original_image = sprites.rocket.active
+    rocket1.hp = ROCKET_HP
+    all_entities.add(rocket1)
+    
+    # Create Player 2's rocket (not used in dev mode 4)
+    p2_pos = Vector2(3 * SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+    rocket2 = Rocket(p2_pos, 2, sprites.rocket.active, sprites.rocket.inactive)
+    rocket2.original_image = sprites.rocket.active
+    rocket2.hp = ROCKET_HP
+    all_entities.add(rocket2)
+
+
+def draw_orbit_traces(star):
     """Draw orbit traces for planets and moons."""
-    # Draw planet orbits
-    for planet_def in SOLAR_SYSTEM['planets']:
-        # Create a surface for the orbit trace
-        orbit_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        
-        # Draw the orbit circle
+    # Create a surface for drawing orbits with alpha transparency
+    orbit_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+    
+    # Draw orbits for each planet
+    for planet in star.planets:
+        # Draw planet orbit around the star
         pygame.draw.circle(
-            orbit_surface, 
-            (*planet_def['color'], 30),  # Use planet color with low alpha
-            (int(center_pos.x), int(center_pos.y)), 
-            planet_def['orbit_radius'], 
+            orbit_surface,
+            (*planet.color, 30),  # Use planet color with low alpha
+            (int(star.position.x), int(star.position.y)),
+            planet.orbit_radius,
             1
         )
         
-        # Blit the orbit trace to the screen
-        screen.blit(orbit_surface, (0, 0))
+        # Draw orbits for each moon around its planet
+        for moon in planet.moons:
+            # Draw moon orbit around its planet
+            pygame.draw.circle(
+                orbit_surface,
+                (*moon.color, 30),  # Use moon color with low alpha
+                (int(planet.position.x), int(planet.position.y)),
+                moon.orbit_radius,
+                1
+            )
+    return orbit_surface
     
-    # Draw moon orbits
-    for planet_def in SOLAR_SYSTEM['planets']:
-        if planet_def['moons']:  # If planet has moons
-            # Find the planet in the celestial_bodies group
-            for sprite in celestial_bodies:
-                if isinstance(sprite, Planet) and sprite.orbit_radius == planet_def['orbit_radius']:
-                    # Draw orbit traces for each moon
-                    for moon in sprite.moons:
-                        # Create a surface for the moon orbit trace
-                        moon_orbit_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-                        
-                        # Draw the moon orbit circle
-                        pygame.draw.circle(
-                            moon_orbit_surface, 
-                            (*moon.color, 30),  # Use moon color with low alpha
-                            (int(sprite.position.x), int(sprite.position.y)), 
-                            int(moon.orbit_radius), 
-                            1
-                        )
-                        
-                        # Blit the moon orbit trace to the screen
-                        screen.blit(moon_orbit_surface, (0, 0))
-                    break
+
+def get_gravity_bodies():
+    """Get a list of celestial bodies that exert gravity (star and planets)."""
+    bodies = [star]  # Star always exerts gravity
+    bodies.extend(star.planets)  # Add all planets
+    return bodies
 
 def main():
+    global all_entities, star, rocket1, rocket2, missiles
     # Parse command line arguments
     args = parse_arguments()
     dev_mode = args.dev_mode
@@ -153,49 +172,74 @@ def main():
     
     # Load assets
     load_assets()
-    
-    # Set up celestial bodies if in dev mode 3
-    if dev_mode == 3:
+    print("Step 1: Assets were loaded")
+    # Set up celestial bodies if in dev mode 3 or 4
+    if dev_mode in [3, 4]:
         setup_celestial_bodies()
-
+    print("Step 2: Celestial bodies were setup")
+    # Set up players if in dev mode 4
+    if dev_mode == 4:
+        print("Step 3: Players were setup")
+        setup_players()
     # Main game loop
+    print("Step 4: Main game loop started")
     running = True
     while running:
-        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                # Handle firing
+                elif event.key == pygame.K_q:  # Player 1 fire
+                    missile = rocket1.fire(sprites.missile, sprites.explosion)
+                    if missile:
+                        missiles.add(missile)
+                        all_entities.add(missile)
+                elif event.key == pygame.K_KP7:  # Player 2 fire
+                    missile = rocket2.fire(sprites.missile, sprites.explosion)
+                    if missile:
+                        missiles.add(missile)
+                        all_entities.add(missile)
 
         screen.fill(BLACK)
-        
-        # Handle dev modes if active
-        if dev_mode == 3:
-            # Draw orbit traces
-            center_pos = Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-            draw_orbit_traces(screen, center_pos)
-            
-            # Update and draw celestial bodies
-            for sprite in celestial_bodies:
-                if isinstance(sprite, Planet):
-                    sprite.update()
-                elif isinstance(sprite, Star):
-                    sprite.update()
-            
-            # Draw all sprites
-            all_sprites.draw(screen)
-            
-            # Display dev mode text
-            ui.draw_text(screen, "DEV MODE 3 ACTIVE", font)
-        elif dev_mode > 0 and dev_mode != 3:
-            dev_modes.handle_dev_mode(screen, dev_mode, sprites, font)
 
+        # Update celestial bodies
+        star.update()
+        
+        # Get input and time delta
+        p1_thrust, p2_thrust = controls.process_input()
+        dt = clock.get_time() / 1000.0  # Convert to seconds
+        
+        # Get gravity-exerting bodies
+        gravity_bodies = get_gravity_bodies()
+        
+        # Calculate and apply gravity to rockets
+        p1_gravity = physics.calculate_gravity_acceleration(rocket1.position, gravity_bodies)
+        p2_gravity = physics.calculate_gravity_acceleration(rocket2.position, gravity_bodies)
+        
+        # Update rockets with gravity
+        rocket1.update(dt, p1_thrust, p1_gravity)
+        rocket2.update(dt, p2_thrust, p2_gravity)
+        
+        # Check screen wrapping
+        physics.check_screen_wrap(rocket1, SCREEN_WIDTH, SCREEN_HEIGHT)
+        physics.check_screen_wrap(rocket2, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+        # Update missiles
+        screen_rect = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        for missile in list(missiles):  # Create a copy of the list to safely modify during iteration
+            missile_gravity = physics.calculate_gravity_acceleration(missile.position, gravity_bodies)
+            missile.update(dt, missile_gravity)
+            if physics.check_missile_despawn(missile, screen_rect):
+                missile.kill()  # This removes it from all sprite groups it belongs to
+
+        # Draw all entities
+        all_entities.draw(screen)
+        
         # Update display
         pygame.display.flip()
-        
-        # Cap the frame rate
         clock.tick(FPS)
 
     # Cleanup
