@@ -5,21 +5,23 @@ from stupid_space_game.constants import SOLAR_SYSTEM, ORBITING_SPEED_FACTOR, SCR
 import math
 from stupid_space_game.celestials import CelestialEntity
 from stupid_space_game.rockets import Rocket
+import stupid_space_game.physics as physics
 
 class World:
     def __init__(self):
+        self._celestials: List[CelestialEntity] = []
         self._initialize_solar_system()
         self.rocket1 = Rocket(
             x=SCREEN_WIDTH // 4,
             y=2 * SCREEN_HEIGHT // 3,
             rotation=270,
-            color=(255, 0, 0)
+            color=(255, 0, 0),
         )
         self.rocket2 = Rocket(
             x=3 * SCREEN_WIDTH // 4, 
             y=2 * SCREEN_HEIGHT // 3,
             rotation=90,
-            color=(255, 255, 0)
+            color=(255, 255, 0),
         )
     
     def _initialize_solar_system(self):
@@ -33,6 +35,7 @@ class World:
             radius=star_data['size'] // 2,
             graphics=star_graphics
         )
+        self._celestials.append(self.star)
         
         for planet_data in SOLAR_SYSTEM['planets']:
             planet_radius = planet_data['size'] // 2
@@ -50,6 +53,7 @@ class World:
                 orbit_angle=planet_data['start_angle']
             )
             self.star.moons.append(planet)
+            self._celestials.append(planet)
             
             # Create all moons for this planet
             planet_moons = []
@@ -69,12 +73,22 @@ class World:
                     orbit_angle=moon_data['start_angle'],
                 )
                 planet_moons.append(moon)
+                self._celestials.append(moon)
             planet.moons = planet_moons
     
     def update(self):
         self.star.update()
         self.rocket1.update()
         self.rocket2.update()
+        
+        for celestial in self._celestials:
+            if physics.check_rocket_celestial_collision(self.rocket1, celestial):
+                physics.resolve_rocket_celestial_collision(self.rocket1, celestial)
+                break
+        for celestial in self._celestials:
+            if physics.check_rocket_celestial_collision(self.rocket2, celestial):
+                physics.resolve_rocket_celestial_collision(self.rocket2, celestial)
+                break
     
     def draw(self, screen: pygame.Surface):
         self.star.draw(screen)

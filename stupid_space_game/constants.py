@@ -27,6 +27,7 @@ PLAYER2_FIRE = pygame.K_KP7
 
 
 # --- Physics ---
+ROCKET_RADIUS = 20
 # General multiplier for gravitational forces. Higher values mean stronger gravity overall.
 GRAVITY_FACTOR = 0.5
 # Coefficient of restitution for bounces (0=inelastic, 1=perfectly elastic).
