@@ -8,7 +8,7 @@
 * **Genre:** 2D Multiplayer Space Combat Arena
 * **Engine:** Pygame (Python 3)
 * **Target Platform:** Ubuntu Linux (GNOME DE assumed, should be cross-platform)
-* **Core Concept:** A two-player, local-multiplayer game set in a 2D "solar system" view. Players pilot rockets experiencing Newtonian physics (inertia, gravity from a central star and orbiting planets/moons). Control is via directional thrusters. Players duel using missiles in a best-of-5-rounds format.
+* **Core Concept:** A two-player, local-multiplayer game set in a 2D "solar system" view. Control is via directional thrusters. Players duel using missiles in a best-of-5-rounds format.
 * **Visual Style:** Functional, with pixel art sprites for dynamic objects (rockets, star, missiles, explosions) and simple colored circles for planets and moons against a static space background.
 
 <br><br>
