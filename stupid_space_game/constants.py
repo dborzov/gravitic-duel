@@ -42,7 +42,7 @@ MIN_GRAVITY_DISTANCE_SQ = 25  # Avoids division by zero if distance < 5 pixels
 ROCKET_HP = 100
 # The magnitude of acceleration applied per frame when a thrust key is held down.
 # Higher values mean faster acceleration. This is applied along world axes (Up/Down/Left/Right).
-THRUST_ACCEL = 10
+THRUST_ACCEL = 1
 # The minimum time in milliseconds that must pass between firing missiles.
 FIRE_COOLDOWN_MS = 2500
 
@@ -72,7 +72,7 @@ SOLAR_SYSTEM = {
         'rotate_radius': 600,  
         'rotate_speed': 0.05,  # Increased by 100x
         'mass': 15000,
-        'size': 200,
+        'size': 500,
         'color': (255, 255, 0),  # Yellow
         'sprite_id': 'planet0-star',
     },

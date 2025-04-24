@@ -16,7 +16,7 @@ def test_draw_planet():
         for num, (celestial, radius) in enumerate(zip(celesitals, radii)):
             pos_x = (num+2)*250
             pos_y = 1000
-            celestial.draw(screen, (pos_x, pos_y))
+            celestial.draw(screen, pygame.math.Vector2(pos_x, pos_y))
             
             # Render and draw caption
             text = font.render(f"{radius}", True, (255, 255, 255))

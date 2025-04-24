@@ -7,9 +7,9 @@ stupid-space-game/
 ├── main.py           # Main game script, entry point, game loop
 ├── settings.py       # General configuration constants (screen resolution, colors, keys, paths)
 ├── constants.py      # Tunable game mechanic constants (physics, entity stats, orbits)
-├── graphics.py       # Components that implement draw() with sprites and animation (stars, planets, moons, rockets) or geometric figures (orbit lines) 
+├── graphics.py       # Components that implement draw() with sprites and animation (stars, planets, moons, rockets)
 ├── physics.py        # Components that implement physics: orbit movement, collision, rocket movement
-├── controls.py       # Components that implement input handling logic
+├── controls.py       # Components that implement control: either user input handling logic, or enemy AI
 ├── entities.py       # Entities (stars, planets, moons, rockets) are defined as containers of appropriate components  
 ├── ui.py             # Functions for drawing HUD elements, messages, orbits
 ├── world.py          # Defines the world object that is a container of all the game world state and all the entities 

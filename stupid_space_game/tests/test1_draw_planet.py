@@ -26,7 +26,7 @@ def test_draw_planet():
         for num, (celestial, cid) in enumerate(zip(celesital_graphics, celestial_ids)):
             pos_x = (num+2)*250
             pos_y = 200
-            celestial.draw(screen, (pos_x, pos_y))
+            celestial.draw(screen, pygame.math.Vector2(pos_x, pos_y))
             
             # Render and draw caption
             text = font.render(cid, True, (255, 255, 255))

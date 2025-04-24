@@ -3,8 +3,8 @@ description:
 globs: 
 alwaysApply: true
 ---
-* Prioritize clear, simple code. 
-* No docstrings, minimize comments,  only have short inline comments in cases where it's really hard to tell what the code is doing
+* Prioritize clear, simple code.
+* No docstrings in the code, no code comments
 * Avoid over-abstraction/layers of indirection. Some code repetition & hardcoded values (`CONSTANTS`) are ok; don't over-optimize for DRY.
 * Use Python type hints (`typing`) for args, returns, and vars.
 * Avoid mutable global variables. Pass state explicitly or use class instances. All game constants (`ALL_CAPS`) should be defined in `constants.py` and imported for use, along with the appropriate comment.
