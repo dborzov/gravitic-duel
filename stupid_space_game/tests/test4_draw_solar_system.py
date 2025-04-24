@@ -4,7 +4,7 @@ from stupid_space_game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 import stupid_space_game.graphics as graphics
 from stupid_space_game.world import World
 
-def main():
+def test4_draw_solar_system():
     screen = graphics.init_graphics()
     world = World()
     clock = pygame.time.Clock()
@@ -20,4 +20,5 @@ def main():
         clock.tick(FPS)
 
 if __name__ == "__main__":
-    main()
+    test4_draw()
+

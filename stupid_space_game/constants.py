@@ -32,6 +32,7 @@ GRAVITY_FACTOR = 0.5
 # Coefficient of restitution for bounces (0=inelastic, 1=perfectly elastic).
 # Determines how much velocity is retained after a collision with terrain or another rocket.
 BOUNCE_FACTOR = 0.6
+ORBITING_SPEED_FACTOR = 0.5
 # Minimum distance squared for gravity calculations to prevent extreme forces (division by zero or near-zero).
 # Using distance squared avoids a square root calculation in the physics loop.
 MIN_GRAVITY_DISTANCE_SQ = 25  # Avoids division by zero if distance < 5 pixels
@@ -63,55 +64,57 @@ COLLISION_DAMAGE_SCALE = 0.2
 # The total number of rounds played in a single game.
 MAX_ROUNDS = 5
 
-# --- Celestial Bodies ---
-# Represents the 'mass' of the central star for gravity calculations. Larger value = stronger pull.
-STAR_MASS = 15000
 
 # The solar system configuration including the central star and all celestial bodies
 SOLAR_SYSTEM = {
     'star': {
-        'rotate_center': {'x': -600, 'y': +600},  # Center of the screen
+        'position': {'x': 600, 'y': +600},
         'rotate_radius': 600,  
-        'rotate_speed': 0.0005,  
-        'mass': STAR_MASS,
+        'rotate_speed': 0.05,  # Increased by 100x
+        'mass': 15000,
         'size': 200,
-        'color': (255, 255, 0)  # Yellow
+        'color': (255, 255, 0),  # Yellow
+        'sprite_id': 'planet0-star',
     },
     'planets': [
         {
             'size': 160,
             'mass': 8000,
             'orbit_radius': 600,
-            'orbit_speed': 0.0005,
-            'start_angle': math.pi / 2,
+            'orbit_speed': 0.05,  # Increased by 100x
+            'start_angle': 47.3,
             'color': (66, 135, 245),
             'image_key': 'planet_01',
+            'sprite_id': 'planet1-rock',
             'moons': []  # Blue planet with no moons
         },
         {
             'size': 100,
             'mass': 4000,
             'orbit_radius': 900,
-            'orbit_speed': 0.0003,
-            'start_angle': 0,
+            'orbit_speed': 0.03,  # Increased by 100x
+            'start_angle': 182.7,
             'color': (245, 66, 66),
-            'image_key': 'planet_02',
+            'sprite_id': 'planet2-gas-giant',
             'moons': [
                 {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 180,  # 1.8 * planet size
-                    'orbit_speed': 0.0009,  # 3.0 * planet speed
-                    'start_angle': 0,
-                    'color': (200, 200, 200)
+                    'orbit_speed': 0.09,  # Increased by 100x
+                    'start_angle': 93.2,
+                    'color': (200, 200, 200),
+                    'sprite_id': 'planet3-lava',
                 },
                 {
                     'size': 25,
                     'mass': 400,
                     'orbit_radius': 250,  # Different orbit radius
-                    'orbit_speed': 0.0012,  # Different orbit speed
-                    'start_angle': math.pi / 3,
-                    'color': (180, 180, 180)
+                    'orbit_speed': 0.12,  # Increased by 100x
+                    'start_angle': 271.5,
+                    'color': (180, 180, 180),
+                    'sprite_id': 'planet4-earth',
+
                 }
             ]
         },
@@ -119,18 +122,19 @@ SOLAR_SYSTEM = {
             'size': 130,
             'mass': 6000,
             'orbit_radius': 400,
-            'orbit_speed': 0.0008,
-            'start_angle': math.pi,
+            'orbit_speed': 0.08,  # Increased by 100x
+            'start_angle': 128.4,
             'color': (66, 245, 117),
-            'image_key': 'planet_03',
+            'sprite_id': 'planet5-ice',
             'moons': [
                 {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 234,  # 1.8 * planet size
-                    'orbit_speed': 0.0024,  # 3.0 * planet speed
-                    'start_angle': math.pi / 4,
-                    'color': (220, 220, 220)
+                    'orbit_speed': 0.24,  # Increased by 100x
+                    'start_angle': 312.8,
+                    'color': (220, 220, 220),
+                    'sprite_id': 'planet6-mars',
                 }
             ]
         },
@@ -138,26 +142,28 @@ SOLAR_SYSTEM = {
             'size': 90,
             'mass': 3500,
             'orbit_radius': 1200,
-            'orbit_speed': 0.0002,
-            'start_angle': 3 * math.pi / 2,
+            'orbit_speed': 0.02,  # Increased by 100x
+            'start_angle': 246.9,
             'color': (245, 188, 66),
-            'image_key': 'planet_04',
+            'sprite_id': 'planet2-gas-giant',
             'moons': [
                 {
                     'size': 28,
                     'mass': 450,
                     'orbit_radius': 162,  # 1.8 * planet size
-                    'orbit_speed': 0.0006,  # 3.0 * planet speed
-                    'start_angle': 0,
-                    'color': (190, 190, 190)
+                    'orbit_speed': 0.06,  # Increased by 100x
+                    'start_angle': 157.3,
+                    'color': (190, 190, 190),
+                    'sprite_id': 'planet7-water',
                 },
                 {
                     'size': 32,
                     'mass': 550,
                     'orbit_radius': 200,  # Different orbit radius
-                    'orbit_speed': 0.0008,  # Different orbit speed
-                    'start_angle': math.pi / 2,
-                    'color': (210, 210, 210)
+                    'orbit_speed': 0.08,  # Increased by 100x
+                    'start_angle': 82.1,
+                    'color': (210, 210, 210),
+                    'sprite_id': 'planet6-mars',
                 }
             ]
         },
@@ -165,50 +171,55 @@ SOLAR_SYSTEM = {
             'size': 110,
             'mass': 4500,
             'orbit_radius': 750,
-            'orbit_speed': 0.0004,
-            'start_angle': math.pi / 8,
+            'orbit_speed': 0.04,  # Increased by 100x
+            'start_angle': 328.4,
             'color': (188, 66, 245),
-            'image_key': 'planet_05',
+            'sprite_id': 'planet2-gas-giant',
             'moons': [
                 {
                     'size': 27,
                     'mass': 420,
                     'orbit_radius': 198,  # 1.8 * planet size
-                    'orbit_speed': 0.0012,  # 3.0 * planet speed
-                    'start_angle': 0,
-                    'color': (195, 195, 195)
+                    'orbit_speed': 0.12,  # Increased by 100x
+                    'start_angle': 42.7,
+                    'color': (195, 195, 195),
+                    'sprite_id': 'planet6-mars',
                 },
                 {
                     'size': 25,
                     'mass': 380,
                     'orbit_radius': 250,
-                    'orbit_speed': 0.0015,
-                    'start_angle': math.pi / 3,
-                    'color': (185, 185, 185)
+                    'orbit_speed': 0.15,  # Increased by 100x
+                    'start_angle': 193.6,
+                    'color': (185, 185, 185),
+                    'sprite_id': 'planet4-earth',
                 },
                 {
                     'size': 23,
                     'mass': 350,
                     'orbit_radius': 300,
-                    'orbit_speed': 0.0018,
-                    'start_angle': 2 * math.pi / 3,
-                    'color': (175, 175, 175)
+                    'orbit_speed': 0.18,  # Increased by 100x
+                    'start_angle': 267.9,
+                    'color': (175, 175, 175),
+                    'sprite_id': 'planet7-water',
                 },
                 {
                     'size': 21,
                     'mass': 320,
                     'orbit_radius': 350,
-                    'orbit_speed': 0.0021,
-                    'start_angle': math.pi,
-                    'color': (165, 165, 165)
+                    'orbit_speed': 0.21,  # Increased by 100x
+                    'start_angle': 134.2,
+                    'color': (165, 165, 165),
+                    'sprite_id': 'planet4-earth',
                 },
                 {
                     'size': 19,
                     'mass': 290,
                     'orbit_radius': 400,
-                    'orbit_speed': 0.0024,
-                    'start_angle': 4 * math.pi / 3,
-                    'color': (155, 155, 155)
+                    'orbit_speed': 0.24,  # Increased by 100x
+                    'start_angle': 298.5,
+                    'color': (155, 155, 155),
+                    'sprite_id': 'planet1-rock',
                 }
             ]
         },
@@ -216,42 +227,46 @@ SOLAR_SYSTEM = {
             'size': 180,  # Larger size for gas giant
             'mass': 12000,
             'orbit_radius': 2000,  # Much larger orbit
-            'orbit_speed': 0.00015,
-            'start_angle': math.pi / 6,
+            'orbit_speed': 0.015,  # Increased by 100x
+            'start_angle': 72.8,
             'color': (245, 200, 100),  # Jupiter-like color
-            'image_key': 'planet_06',
+            'sprite_id': 'planet2-gas-giant',
             'moons': [
                 {
                     'size': 45,
                     'mass': 800,
                     'orbit_radius': 324,  # 1.8 * planet size
-                    'orbit_speed': 0.00045,
-                    'start_angle': 0,
-                    'color': (220, 220, 220)
+                    'orbit_speed': 0.045,  # Increased by 100x
+                    'start_angle': 217.4,
+                    'color': (220, 220, 220),
+                    'sprite_id': 'planet1-rock',
                 },
                 {
                     'size': 40,
                     'mass': 700,
                     'orbit_radius': 450,
-                    'orbit_speed': 0.0006,
-                    'start_angle': math.pi / 4,
-                    'color': (210, 210, 210)
+                    'orbit_speed': 0.06,  # Increased by 100x
+                    'start_angle': 156.3,
+                    'color': (210, 210, 210),
+                    'sprite_id': 'planet1-rock',
                 },
                 {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 540,
-                    'orbit_speed': 0.00075,
-                    'start_angle': math.pi / 2,
-                    'color': (200, 200, 200)
+                    'orbit_speed': 0.075,  # Increased by 100x
+                    'start_angle': 289.7,
+                    'color': (200, 200, 200),
+                    'sprite_id': 'planet4-earth',
                 },
                 {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 630,
-                    'orbit_speed': 0.0009,
-                    'start_angle': 3 * math.pi / 4,
-                    'color': (190, 190, 190)
+                    'orbit_speed': 0.09,  # Increased by 100x
+                    'start_angle': 124.8,
+                    'color': (190, 190, 190),
+                    'sprite_id': 'planet7-water',
                 }
             ]
         },
@@ -259,50 +274,55 @@ SOLAR_SYSTEM = {
             'size': 200,  # Even larger gas giant
             'mass': 15000,
             'orbit_radius': 3000,  # Even larger orbit
-            'orbit_speed': 0.0001,
-            'start_angle': 2 * math.pi / 3,
+            'orbit_speed': 0.01,  # Increased by 100x
+            'start_angle': 243.1,
             'color': (200, 180, 150),  # Saturn-like color
-            'image_key': 'planet_07',
+            'sprite_id': 'planet2-gas-giant',
             'moons': [
                 {
                     'size': 50,
                     'mass': 900,
                     'orbit_radius': 360,
-                    'orbit_speed': 0.0004,
-                    'start_angle': 0,
-                    'color': (230, 230, 230)
+                    'orbit_speed': 0.04,  # Increased by 100x
+                    'start_angle': 87.6,
+                    'color': (230, 230, 230),
+                    'sprite_id': 'planet1-rock',
                 },
                 {
                     'size': 45,
                     'mass': 800,
                     'orbit_radius': 500,
-                    'orbit_speed': 0.0005,
-                    'start_angle': math.pi / 3,
-                    'color': (220, 220, 220)
+                    'orbit_speed': 0.05,  # Increased by 100x
+                    'start_angle': 178.9,
+                    'color': (220, 220, 220),
+                    'sprite_id': 'planet3-lava',
                 },
                 {
                     'size': 40,
                     'mass': 700,
                     'orbit_radius': 600,
-                    'orbit_speed': 0.0006,
-                    'start_angle': 2 * math.pi / 3,
-                    'color': (210, 210, 210)
+                    'orbit_speed': 0.06,  # Increased by 100x
+                    'start_angle': 312.4,
+                    'color': (210, 210, 210),
+                    'sprite_id': 'planet4-earth',
                 },
                 {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 700,
-                    'orbit_speed': 0.0007,
-                    'start_angle': math.pi,
-                    'color': (200, 200, 200)
+                    'orbit_speed': 0.07,  # Increased by 100x
+                    'start_angle': 142.7,
+                    'color': (200, 200, 200),
+                    'sprite_id': 'planet7-water',
                 },
                 {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 800,
-                    'orbit_speed': 0.0008,
-                    'start_angle': 4 * math.pi / 3,
-                    'color': (190, 190, 190)
+                    'orbit_speed': 0.08,  # Increased by 100x
+                    'start_angle': 267.3,
+                    'color': (190, 190, 190),
+                    'sprite_id': 'planet1-rock',
                 }
             ]
         },
@@ -310,58 +330,64 @@ SOLAR_SYSTEM = {
             'size': 220,  # Largest gas giant
             'mass': 18000,
             'orbit_radius': 4000,  # Largest orbit
-            'orbit_speed': 0.00008,
-            'start_angle': 5 * math.pi / 6,
+            'orbit_speed': 0.008,  # Increased by 100x
+            'start_angle': 134.8,
             'color': (180, 160, 140),  # Uranus-like color
-            'image_key': 'planet_08',
+            'sprite_id': 'planet5-ice',
             'moons': [
                 {
                     'size': 55,
                     'mass': 1000,
                     'orbit_radius': 396,
-                    'orbit_speed': 0.00035,
-                    'start_angle': 0,
-                    'color': (240, 240, 240)
+                    'orbit_speed': 0.035,  # Increased by 100x
+                    'start_angle': 223.6,
+                    'color': (240, 240, 240),
+                    'sprite_id': 'planet3-lava',
                 },
                 {
                     'size': 50,
                     'mass': 900,
                     'orbit_radius': 550,
-                    'orbit_speed': 0.00045,
-                    'start_angle': math.pi / 4,
-                    'color': (230, 230, 230)
+                    'orbit_speed': 0.045,  # Increased by 100x
+                    'start_angle': 78.4,
+                    'color': (230, 230, 230),
+                    'sprite_id': 'planet1-rock',
                 },
                 {
                     'size': 45,
                     'mass': 800,
                     'orbit_radius': 660,
-                    'orbit_speed': 0.00055,
-                    'start_angle': math.pi / 2,
-                    'color': (220, 220, 220)
+                    'orbit_speed': 0.055,  # Increased by 100x
+                    'start_angle': 298.2,
+                    'color': (220, 220, 220),
+                    'sprite_id': 'planet1-rock',
                 },
                 {
                     'size': 40,
                     'mass': 700,
                     'orbit_radius': 770,
-                    'orbit_speed': 0.00065,
-                    'start_angle': 3 * math.pi / 4,
-                    'color': (210, 210, 210)
+                    'orbit_speed': 0.065,  # Increased by 100x
+                    'start_angle': 167.5,
+                    'color': (210, 210, 210),
+                    'sprite_id': 'planet4-earth',
                 },
                 {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 880,
-                    'orbit_speed': 0.00075,
-                    'start_angle': math.pi,
-                    'color': (200, 200, 200)
+                    'orbit_speed': 0.075,  # Increased by 100x
+                    'start_angle': 342.9,
+                    'color': (200, 200, 200),
+                    'sprite_id': 'planet7-water',
                 },
                 {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 990,
-                    'orbit_speed': 0.00085,
-                    'start_angle': 5 * math.pi / 4,
-                    'color': (190, 190, 190)
+                    'orbit_speed': 0.085,  # Increased by 100x
+                    'start_angle': 112.3,
+                    'color': (190, 190, 190),
+                    'sprite_id': 'planet1-rock',
                 }
             ]
         }
