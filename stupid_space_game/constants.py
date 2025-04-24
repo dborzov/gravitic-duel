@@ -25,6 +25,7 @@ PLAYER2_LEFT = pygame.K_KP4
 PLAYER2_RIGHT = pygame.K_KP6
 PLAYER2_FIRE = pygame.K_KP7
 
+COLLISION_BUFFER = 32
 
 # --- Physics ---
 ROCKET_RADIUS = 20
@@ -82,7 +83,7 @@ SOLAR_SYSTEM = {
             'size': 160,
             'mass': 8000,
             'orbit_radius': 600,
-            'orbit_speed': 0.05,  # Increased by 100x
+            'angular_velocity': 0.05,  # Increased by 100x
             'start_angle': 47.3,
             'color': (66, 135, 245),
             'image_key': 'planet_01',
@@ -93,7 +94,7 @@ SOLAR_SYSTEM = {
             'size': 100,
             'mass': 4000,
             'orbit_radius': 900,
-            'orbit_speed': 0.03,  # Increased by 100x
+            'angular_velocity': 0.03,  # Increased by 100x
             'start_angle': 182.7,
             'color': (245, 66, 66),
             'sprite_id': 'planet2-gas-giant',
@@ -102,7 +103,7 @@ SOLAR_SYSTEM = {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 180,  # 1.8 * planet size
-                    'orbit_speed': 0.09,  # Increased by 100x
+                    'angular_velocity': 0.09,  # Increased by 100x
                     'start_angle': 93.2,
                     'color': (200, 200, 200),
                     'sprite_id': 'planet3-lava',
@@ -111,7 +112,7 @@ SOLAR_SYSTEM = {
                     'size': 25,
                     'mass': 400,
                     'orbit_radius': 250,  # Different orbit radius
-                    'orbit_speed': 0.12,  # Increased by 100x
+                    'angular_velocity': 0.12,  # Increased by 100x
                     'start_angle': 271.5,
                     'color': (180, 180, 180),
                     'sprite_id': 'planet4-earth',
@@ -123,7 +124,7 @@ SOLAR_SYSTEM = {
             'size': 130,
             'mass': 6000,
             'orbit_radius': 400,
-            'orbit_speed': 0.08,  # Increased by 100x
+            'angular_velocity': 0.08,  # Increased by 100x
             'start_angle': 128.4,
             'color': (66, 245, 117),
             'sprite_id': 'planet5-ice',
@@ -132,7 +133,7 @@ SOLAR_SYSTEM = {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 234,  # 1.8 * planet size
-                    'orbit_speed': 0.24,  # Increased by 100x
+                    'angular_velocity': 0.24,  # Increased by 100x
                     'start_angle': 312.8,
                     'color': (220, 220, 220),
                     'sprite_id': 'planet6-mars',
@@ -143,7 +144,7 @@ SOLAR_SYSTEM = {
             'size': 90,
             'mass': 3500,
             'orbit_radius': 1200,
-            'orbit_speed': 0.02,  # Increased by 100x
+            'angular_velocity': 0.02,  # Increased by 100x
             'start_angle': 246.9,
             'color': (245, 188, 66),
             'sprite_id': 'planet2-gas-giant',
@@ -152,7 +153,7 @@ SOLAR_SYSTEM = {
                     'size': 28,
                     'mass': 450,
                     'orbit_radius': 162,  # 1.8 * planet size
-                    'orbit_speed': 0.06,  # Increased by 100x
+                    'angular_velocity': 0.06,  # Increased by 100x
                     'start_angle': 157.3,
                     'color': (190, 190, 190),
                     'sprite_id': 'planet7-water',
@@ -161,7 +162,7 @@ SOLAR_SYSTEM = {
                     'size': 32,
                     'mass': 550,
                     'orbit_radius': 200,  # Different orbit radius
-                    'orbit_speed': 0.08,  # Increased by 100x
+                    'angular_velocity': 0.08,  # Increased by 100x
                     'start_angle': 82.1,
                     'color': (210, 210, 210),
                     'sprite_id': 'planet6-mars',
@@ -172,7 +173,7 @@ SOLAR_SYSTEM = {
             'size': 110,
             'mass': 4500,
             'orbit_radius': 750,
-            'orbit_speed': 0.04,  # Increased by 100x
+            'angular_velocity': 0.04,  # Increased by 100x
             'start_angle': 328.4,
             'color': (188, 66, 245),
             'sprite_id': 'planet2-gas-giant',
@@ -181,7 +182,7 @@ SOLAR_SYSTEM = {
                     'size': 27,
                     'mass': 420,
                     'orbit_radius': 198,  # 1.8 * planet size
-                    'orbit_speed': 0.12,  # Increased by 100x
+                    'angular_velocity': 0.12,  # Increased by 100x
                     'start_angle': 42.7,
                     'color': (195, 195, 195),
                     'sprite_id': 'planet6-mars',
@@ -190,7 +191,7 @@ SOLAR_SYSTEM = {
                     'size': 25,
                     'mass': 380,
                     'orbit_radius': 250,
-                    'orbit_speed': 0.15,  # Increased by 100x
+                    'angular_velocity': 0.15,  # Increased by 100x
                     'start_angle': 193.6,
                     'color': (185, 185, 185),
                     'sprite_id': 'planet4-earth',
@@ -199,7 +200,7 @@ SOLAR_SYSTEM = {
                     'size': 23,
                     'mass': 350,
                     'orbit_radius': 300,
-                    'orbit_speed': 0.18,  # Increased by 100x
+                    'angular_velocity': 0.18,  # Increased by 100x
                     'start_angle': 267.9,
                     'color': (175, 175, 175),
                     'sprite_id': 'planet7-water',
@@ -208,7 +209,7 @@ SOLAR_SYSTEM = {
                     'size': 21,
                     'mass': 320,
                     'orbit_radius': 350,
-                    'orbit_speed': 0.21,  # Increased by 100x
+                    'angular_velocity': 0.21,  # Increased by 100x
                     'start_angle': 134.2,
                     'color': (165, 165, 165),
                     'sprite_id': 'planet4-earth',
@@ -217,7 +218,7 @@ SOLAR_SYSTEM = {
                     'size': 19,
                     'mass': 290,
                     'orbit_radius': 400,
-                    'orbit_speed': 0.24,  # Increased by 100x
+                    'angular_velocity': 0.24,  # Increased by 100x
                     'start_angle': 298.5,
                     'color': (155, 155, 155),
                     'sprite_id': 'planet1-rock',
@@ -228,7 +229,7 @@ SOLAR_SYSTEM = {
             'size': 180,  # Larger size for gas giant
             'mass': 12000,
             'orbit_radius': 2000,  # Much larger orbit
-            'orbit_speed': 0.015,  # Increased by 100x
+            'angular_velocity': 0.015,  # Increased by 100x
             'start_angle': 72.8,
             'color': (245, 200, 100),  # Jupiter-like color
             'sprite_id': 'planet2-gas-giant',
@@ -237,7 +238,7 @@ SOLAR_SYSTEM = {
                     'size': 45,
                     'mass': 800,
                     'orbit_radius': 324,  # 1.8 * planet size
-                    'orbit_speed': 0.045,  # Increased by 100x
+                    'angular_velocity': 0.045,  # Increased by 100x
                     'start_angle': 217.4,
                     'color': (220, 220, 220),
                     'sprite_id': 'planet1-rock',
@@ -246,7 +247,7 @@ SOLAR_SYSTEM = {
                     'size': 40,
                     'mass': 700,
                     'orbit_radius': 450,
-                    'orbit_speed': 0.06,  # Increased by 100x
+                    'angular_velocity': 0.06,  # Increased by 100x
                     'start_angle': 156.3,
                     'color': (210, 210, 210),
                     'sprite_id': 'planet1-rock',
@@ -255,7 +256,7 @@ SOLAR_SYSTEM = {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 540,
-                    'orbit_speed': 0.075,  # Increased by 100x
+                    'angular_velocity': 0.075,  # Increased by 100x
                     'start_angle': 289.7,
                     'color': (200, 200, 200),
                     'sprite_id': 'planet4-earth',
@@ -264,7 +265,7 @@ SOLAR_SYSTEM = {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 630,
-                    'orbit_speed': 0.09,  # Increased by 100x
+                    'angular_velocity': 0.09,  # Increased by 100x
                     'start_angle': 124.8,
                     'color': (190, 190, 190),
                     'sprite_id': 'planet7-water',
@@ -275,7 +276,7 @@ SOLAR_SYSTEM = {
             'size': 200,  # Even larger gas giant
             'mass': 15000,
             'orbit_radius': 3000,  # Even larger orbit
-            'orbit_speed': 0.01,  # Increased by 100x
+            'angular_velocity': 0.01,  # Increased by 100x
             'start_angle': 243.1,
             'color': (200, 180, 150),  # Saturn-like color
             'sprite_id': 'planet2-gas-giant',
@@ -284,7 +285,7 @@ SOLAR_SYSTEM = {
                     'size': 50,
                     'mass': 900,
                     'orbit_radius': 360,
-                    'orbit_speed': 0.04,  # Increased by 100x
+                    'angular_velocity': 0.04,  # Increased by 100x
                     'start_angle': 87.6,
                     'color': (230, 230, 230),
                     'sprite_id': 'planet1-rock',
@@ -293,7 +294,7 @@ SOLAR_SYSTEM = {
                     'size': 45,
                     'mass': 800,
                     'orbit_radius': 500,
-                    'orbit_speed': 0.05,  # Increased by 100x
+                    'angular_velocity': 0.05,  # Increased by 100x
                     'start_angle': 178.9,
                     'color': (220, 220, 220),
                     'sprite_id': 'planet3-lava',
@@ -302,7 +303,7 @@ SOLAR_SYSTEM = {
                     'size': 40,
                     'mass': 700,
                     'orbit_radius': 600,
-                    'orbit_speed': 0.06,  # Increased by 100x
+                    'angular_velocity': 0.06,  # Increased by 100x
                     'start_angle': 312.4,
                     'color': (210, 210, 210),
                     'sprite_id': 'planet4-earth',
@@ -311,7 +312,7 @@ SOLAR_SYSTEM = {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 700,
-                    'orbit_speed': 0.07,  # Increased by 100x
+                    'angular_velocity': 0.07,  # Increased by 100x
                     'start_angle': 142.7,
                     'color': (200, 200, 200),
                     'sprite_id': 'planet7-water',
@@ -320,7 +321,7 @@ SOLAR_SYSTEM = {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 800,
-                    'orbit_speed': 0.08,  # Increased by 100x
+                    'angular_velocity': 0.08,  # Increased by 100x
                     'start_angle': 267.3,
                     'color': (190, 190, 190),
                     'sprite_id': 'planet1-rock',
@@ -331,7 +332,7 @@ SOLAR_SYSTEM = {
             'size': 220,  # Largest gas giant
             'mass': 18000,
             'orbit_radius': 4000,  # Largest orbit
-            'orbit_speed': 0.008,  # Increased by 100x
+            'angular_velocity': 0.008,  # Increased by 100x
             'start_angle': 134.8,
             'color': (180, 160, 140),  # Uranus-like color
             'sprite_id': 'planet5-ice',
@@ -340,7 +341,7 @@ SOLAR_SYSTEM = {
                     'size': 55,
                     'mass': 1000,
                     'orbit_radius': 396,
-                    'orbit_speed': 0.035,  # Increased by 100x
+                    'angular_velocity': 0.035,  # Increased by 100x
                     'start_angle': 223.6,
                     'color': (240, 240, 240),
                     'sprite_id': 'planet3-lava',
@@ -349,7 +350,7 @@ SOLAR_SYSTEM = {
                     'size': 50,
                     'mass': 900,
                     'orbit_radius': 550,
-                    'orbit_speed': 0.045,  # Increased by 100x
+                    'angular_velocity': 0.045,  # Increased by 100x
                     'start_angle': 78.4,
                     'color': (230, 230, 230),
                     'sprite_id': 'planet1-rock',
@@ -358,7 +359,7 @@ SOLAR_SYSTEM = {
                     'size': 45,
                     'mass': 800,
                     'orbit_radius': 660,
-                    'orbit_speed': 0.055,  # Increased by 100x
+                    'angular_velocity': 0.055,  # Increased by 100x
                     'start_angle': 298.2,
                     'color': (220, 220, 220),
                     'sprite_id': 'planet1-rock',
@@ -367,7 +368,7 @@ SOLAR_SYSTEM = {
                     'size': 40,
                     'mass': 700,
                     'orbit_radius': 770,
-                    'orbit_speed': 0.065,  # Increased by 100x
+                    'angular_velocity': 0.065,  # Increased by 100x
                     'start_angle': 167.5,
                     'color': (210, 210, 210),
                     'sprite_id': 'planet4-earth',
@@ -376,7 +377,7 @@ SOLAR_SYSTEM = {
                     'size': 35,
                     'mass': 600,
                     'orbit_radius': 880,
-                    'orbit_speed': 0.075,  # Increased by 100x
+                    'angular_velocity': 0.075,  # Increased by 100x
                     'start_angle': 342.9,
                     'color': (200, 200, 200),
                     'sprite_id': 'planet7-water',
@@ -385,7 +386,7 @@ SOLAR_SYSTEM = {
                     'size': 30,
                     'mass': 500,
                     'orbit_radius': 990,
-                    'orbit_speed': 0.085,  # Increased by 100x
+                    'angular_velocity': 0.085,  # Increased by 100x
                     'start_angle': 112.3,
                     'color': (190, 190, 190),
                     'sprite_id': 'planet1-rock',

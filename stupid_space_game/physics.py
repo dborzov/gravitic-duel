@@ -10,41 +10,46 @@ if TYPE_CHECKING:
 BOUNCE_FACTOR = 0.7 # Restitution factor (0=no bounce, 1=perfect bounce)
 
 def check_rocket_celestial_collision(rocket: 'Rocket', celestial: 'CelestialEntity') -> bool:
+    if celestial.broad_check_cooldown > 0:
+        return False
+    if not is_probably_colliding_broad_check(rocket, celestial):
+        return False
     return rocket.position.distance_to(celestial.position) <= (ROCKET_RADIUS + celestial.radius)
+    
+
+def is_probably_colliding_broad_check(rocket: 'Rocket', celestial: 'CelestialEntity') -> bool:
+    if rocket.broad_borders[2] < celestial.broad_borders[0]:
+        return False
+    if rocket.broad_borders[0] > celestial.broad_borders[2]:
+        return False
+    if rocket.broad_borders[3] < celestial.broad_borders[1]:
+        return False
+    if rocket.broad_borders[1] > celestial.broad_borders[3]:
+        return False
+    return True
+
 
 def resolve_rocket_celestial_collision(rocket: 'Rocket', celestial: 'CelestialEntity'):
     """Resolves collision between a rocket and a celestial body by making the rocket bounce."""
     # 1. Calculate collision normal (vector from celestial center to rocket center)
-    dx = rocket.position.x - celestial.position.x
-    dy = rocket.position.y - celestial.position.y
-    dist = math.hypot(dx, dy)
-    if dist == 0: # Avoid division by zero if centers overlap perfectly
-        normal_x, normal_y = 1, 0 # Default normal if overlapping
-    else:
-        normal_x = dx / dist
-        normal_y = dy / dist
+    if rocket.position == celestial.position:
+        return None
+    normal = rocket.position - celestial.position
+    if normal.length() < ROCKET_RADIUS + celestial.radius:
+        rocket.position = celestial.position + normal.normalize() * (ROCKET_RADIUS + celestial.radius)
 
+    normal = normal.normalize()
+    
     # 2. Calculate relative velocity
     # Assuming celestial bodies are static or their velocity is negligible for bounce calculation
-    relative_vx = rocket.velocity.x
-    relative_vy = rocket.velocity.y
-
+    relative_v = rocket.velocity + celestial.orbit_velocity()
+    
     # 3. Calculate impulse scalar (dot product of relative velocity and normal)
-    impulse_scalar = relative_vx * normal_x + relative_vy * normal_y
-
+    impulse_scalar = relative_v.dot(normal)
+    
     # 4. Calculate reflected velocity (only if moving towards each other)
     if impulse_scalar < 0:
         # Reflect velocity component along the normal
-        reflect_vx = -2 * impulse_scalar * normal_x
-        reflect_vy = -2 * impulse_scalar * normal_y
+        reflect_v = normal * (-2 * impulse_scalar)
+        rocket.velocity += reflect_v
 
-        # Apply bounce factor (restitution)
-        rocket.velocity.x += reflect_vx * (1 + BOUNCE_FACTOR)
-        rocket.velocity.y += reflect_vy * (1 + BOUNCE_FACTOR)
-        
-
-    # 5. Move rocket slightly out of collision to prevent sticking
-    overlap = (ROCKET_RADIUS + celestial.radius) - dist + 1 # Small epsilon to ensure separation
-    if overlap > 0:
-        rocket.position.x += normal_x * overlap
-        rocket.position.y += normal_y * overlap

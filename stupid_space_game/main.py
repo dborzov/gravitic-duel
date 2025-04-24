@@ -24,7 +24,7 @@ def main():
         background.draw(screen)
         world.draw(screen)
         pygame.display.update()
-        clock.tick(FPS)
+        clock.tick(30)
 
 if __name__ == "__main__":
     main()

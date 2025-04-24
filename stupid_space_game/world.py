@@ -15,19 +15,20 @@ class World:
             x=SCREEN_WIDTH // 4,
             y=2 * SCREEN_HEIGHT // 3,
             rotation=270,
-            color=(255, 0, 0),
         )
         self.rocket2 = Rocket(
             x=3 * SCREEN_WIDTH // 4, 
             y=2 * SCREEN_HEIGHT // 3,
             rotation=90,
-            color=(255, 255, 0),
         )
     
     def _initialize_solar_system(self):
         star_data = SOLAR_SYSTEM['star']
         star_radius = star_data['size'] // 2
-        star_graphics = graphics.CelestialBodyGraphics(star_data['sprite_id'], star_radius)
+        star_graphics = graphics.CelestialBodyGraphics(
+            star_data['sprite_id'], 
+            2*star_radius # the specific sprite of the star is 2x the others 
+        )
         
         self.star = CelestialEntity(
             x=star_data['position']['x'],
@@ -49,7 +50,7 @@ class World:
                 graphics=planet_graphics,
                 orbit_parent=self.star,
                 orbit_radius=planet_data['orbit_radius'],
-                orbit_speed=planet_data['orbit_speed'],
+                angular_velocity=planet_data['angular_velocity'],
                 orbit_angle=planet_data['start_angle']
             )
             self.star.moons.append(planet)
@@ -69,7 +70,7 @@ class World:
                     graphics=moon_graphics,
                     orbit_parent=planet,
                     orbit_radius=moon_data['orbit_radius'],
-                    orbit_speed=moon_data['orbit_speed'],
+                    angular_velocity=moon_data['angular_velocity'],
                     orbit_angle=moon_data['start_angle'],
                 )
                 planet_moons.append(moon)

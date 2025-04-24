@@ -35,13 +35,9 @@ class CelestialBodyGraphics:
         screen.blit(frame, (position.x - self.radius, position.y - self.radius))
 
 class RocketGraphics:
-    def __init__(self, color: Tuple[int, int, int] = (255, 255, 255)) -> None:
+    def __init__(self) -> None:
         self.rocket_on = pygame.image.load('./assets/rocket_on.png').convert_alpha()
         self.rocket_off = pygame.image.load('./assets/rocket_off.png').convert_alpha()
-        
-        # Apply color tint to the images
-        self.rocket_on = self._apply_color_to_image(self.rocket_on, color)
-        self.rocket_off = self._apply_color_to_image(self.rocket_off, color)
         
         self.frames_on = []
         self.frames_off = []
@@ -49,14 +45,6 @@ class RocketGraphics:
             self.frames_on.append(pygame.transform.rotate(self.rocket_on, -angle))
             self.frames_off.append(pygame.transform.rotate(self.rocket_off, -angle))
     
-    def _apply_color_to_image(self, image: pygame.Surface, color: Tuple[int, int, int]) -> pygame.Surface:
-        """Apply color tint to an image while preserving transparency."""
-        tinted_image = image.copy()
-        color_surface = pygame.Surface(image.get_size()).convert_alpha()
-        color_surface.fill(color)
-        color_surface.set_alpha(200)
-        tinted_image.blit(color_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-        return tinted_image
     
     def draw(
         self,
