@@ -9,9 +9,8 @@
 * **Engine:** Pygame (Python 3)
 * **Target Platform:** Ubuntu Linux (GNOME DE assumed, should be cross-platform)
 * **Core Concept:** A two-player, local-multiplayer game set in a 2D "solar system" view. Control is via directional thrusters. Players duel using missiles in a best-of-5-rounds format.
-* **Visual Style:** Functional, with pixel art sprites for dynamic objects (rockets, star, missiles, explosions) and simple colored circles for planets and moons against a static space background.
+* **Visual Style:** Pixel art sprites:  rockets, the star, missiles, explosions.
 
-<br><br>
 
 ## 2. Core Gameplay Mechanics
 
@@ -31,7 +30,6 @@
     * Destruction: HP <= 0 triggers explosion visual (shared explosion sprite, scaled down for missiles) and removal after a short delay. Can result in a round tie.
 * **Win Condition:** Best of 5 rounds. Player with the most round wins after 5 rounds wins the game.
 
-<br><br>
 
 ## 3. Entities
 
@@ -41,7 +39,6 @@
 * **Planets (x5):** Orbit star (circular paths). Secondary gravity sources. Cause collision damage. Drawn as simple colored circles of varying sizes. Orbit paths visually hinted at.
 * **Moons (~10 total):** Orbit respective planets (circular paths). Negligible/zero gravity. Cause collision damage. Drawn as small, simple colored circles. Orbit paths visually hinted at.
 
-<br><br>
 
 ## 4. Physics Details (Conceptual)
 
@@ -51,7 +48,6 @@
 * **Collisions:** Circle-based collision detection (`pygame.sprite.collide_circle`).
 * **Response:** Damage application based on source. Bouncing uses velocity reflection based on collision normal and a restitution factor (`BOUNCE_FACTOR`).
 
-<br><br>
 
 ## 5. Controls
 
@@ -59,7 +55,6 @@
 * **Player 2:** `Numpad 8/4/2/6` (Up/Left/Down/Right thrust), `Numpad 7` (Fire).
 * **Global:** `ESC` (Quit game).
 
-<br><br>
 
 ## 6. User Interface (UI)
 
@@ -68,7 +63,6 @@
 * **Messages:** Large centered text overlay for round end ("PLAYER X WINS ROUND!", "ROUND TIED!") and game end ("PLAYER X WINS GAME!", "GAME TIED!"). Displayed temporarily.
 * **Visuals:** Static space background image. Faded lines indicating orbits.
 
-<br><br>
 
 ## 7. Game Flow
 
@@ -79,14 +73,5 @@
 5.  **Game End:** After Round 5, display final game winner message (3 seconds).
 6.  **Exit:** Game exits automatically after final message or when `ESC` is pressed.
 
-<br><br>
 
-## 8. Assets (Simplified)
-
-* `assets/images/rocket.png`: Sprite for player rockets.
-* `assets/images/missile.png`: Sprite for missiles.
-* `assets/images/explosion.png`: Sprite for explosions (used for rockets, scaled down for missiles).
-* `assets/images/star.png`: Sprite for the central star.
-* `assets/images/background.png`: Static background image.
-* *(Planets and Moons are drawn procedurally as colored circles)*.
 

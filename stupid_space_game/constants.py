@@ -2,6 +2,29 @@
 # These values are intended to be tweaked for gameplay balancing and tuning.
 
 import math
+import pygame
+
+
+# Screen settings
+SCREEN_WIDTH = 2560
+SCREEN_HEIGHT = 1440
+FPS = 60
+
+
+
+# Key mappings
+PLAYER1_UP = pygame.K_w
+PLAYER1_DOWN = pygame.K_s
+PLAYER1_LEFT = pygame.K_a
+PLAYER1_RIGHT = pygame.K_d
+PLAYER1_FIRE = pygame.K_q
+
+PLAYER2_UP = pygame.K_KP8
+PLAYER2_DOWN = pygame.K_KP2
+PLAYER2_LEFT = pygame.K_KP4
+PLAYER2_RIGHT = pygame.K_KP6
+PLAYER2_FIRE = pygame.K_KP7
+
 
 # --- Physics ---
 # General multiplier for gravitational forces. Higher values mean stronger gravity overall.
@@ -344,12 +367,3 @@ SOLAR_SYSTEM = {
         }
     ]
 }
-
-# Visual diameter of moons in pixels.
-MOON_SIZE = 30
-# 'Mass' proxy for moons (set to 0 to have no gravitational effect).
-MOON_MASS_PROXY = 0
-# Factor determining moon orbit radius relative to planet size (e.g., 1.5 * planet radius).
-MOON_ORBIT_RADIUS_FACTOR = 1.8
-# Factor determining moon orbit speed relative to planet orbit speed (e.g., 2.0 * planet speed).
-MOON_ORBIT_SPEED_FACTOR = 3.0
