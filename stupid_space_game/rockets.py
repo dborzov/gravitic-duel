@@ -4,6 +4,7 @@ import math
 import stupid_space_game.graphics as graphics
 from stupid_space_game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, COLLISION_BUFFER
 
+
 class Rocket:
     def __init__(self, x: float = 0, y: float = 0, rotation: float = 0) -> None:
         self.position = pygame.math.Vector2(x, y)

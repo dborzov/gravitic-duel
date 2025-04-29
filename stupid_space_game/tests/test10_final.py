@@ -1,12 +1,12 @@
 import pygame
 import math
-import time # For potential brief pauses - now maybe only for edge case
+import time
+from pygame.math import Vector2 # Import Vector2 directly for convenience
 
-# --- Constants (Keep previous, add RESULT label color) ---
+# --- Constants ---
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1440
 TRIANGLE_COLOR = pygame.Color('yellow')
-TEXT_COLOR = pygame.Color('white') # For side labels
 HYPOTENUSE_COLOR = pygame.Color('magenta') # Original hypotenuse path
 LINE_WIDTH = 2
 HYPOTENUSE_LINE_WIDTH = 4
@@ -24,122 +24,135 @@ EXPLOSION_RADIUS_INNER_MAX = 50
 EXPLOSION_RADIUS_OUTER_MAX = 100
 EXPLOSION_DURATION_MS = 300
 
-RESULT_TEXT_COLOR = pygame.Color('cyan') # For side lengths in final state
-GUESS_VS_TRUE_COLOR = pygame.Color('lime') # For the new comparison label
-# RESULT_PAUSE_DURATION_MS = 1500 # No longer needed in animation func
+# Define Text Colors Globally
+TEXT_COLOR = pygame.Color('white') # Default for initial side labels
+RESULT_TEXT_COLOR = pygame.Color('cyan') # For side labels in final state
+GUESS_VS_TRUE_COLOR = pygame.Color('lime') # For the guess/true comparison label
+PROMPT_TEXT_COLOR = pygame.Color('lightgray') # For user prompts
 
-# --- Utility Functions (Keep clamp_rect_to_screen) ---
+# Global Font Variable (initialized after pygame.init)
+GAME_FONT: pygame.font.Font = None
+
+# --- Utility Functions ---
 def clamp_rect_to_screen(rect: pygame.Rect, screen_width: int, screen_height: int) -> pygame.Rect:
     clamped_rect = rect.copy()
     clamped_rect.clamp_ip(pygame.Rect(0, 0, screen_width, screen_height))
     return clamped_rect
 
-# --- Drawing Functions ---
+# --- Drawing Functions (Modified) ---
 
-# UNCHANGED: draw_right_triangle_with_labels
+# Now uses Vector2, global font/colors
 def draw_right_triangle_with_labels(
     screen: pygame.Surface,
-    font: pygame.font.Font,
+    # font: pygame.font.Font, # Removed
     screen_width: int,
     screen_height: int,
-    x_start: int,
-    y_start: int,
-    x_target: int,
-    y_target: int,
-    text_color: pygame.Color = TEXT_COLOR # Allow overriding text color
+    start_vec: Vector2, # Use Vector2
+    target_vec: Vector2, # Use Vector2
+    # text_color: pygame.Color = TEXT_COLOR # Removed, uses global TEXT_COLOR
 ) -> None:
-    """Draws the basic triangle with side labels."""
-    # ... (Code from previous version, unchanged internally) ...
-    # ... (but added optional text_color argument) ...
+    """Draws the basic triangle with side labels using Vector2 and global font."""
+    if GAME_FONT is None: # Safety check
+        print("ERROR: GAME_FONT not initialized!")
+        return
+
     # --- 1. Calculate Geometry ---
-    corner_x = x_target
-    corner_y = y_start
-    delta_x = abs(x_start - x_target)
-    delta_y = abs(y_start - y_target)
+    corner_vec = Vector2(target_vec.x, start_vec.y) # Corner using vector components
+    delta_x = abs(start_vec.x - target_vec.x)
+    delta_y = abs(start_vec.y - target_vec.y)
+
+    # Convenience tuples for drawing functions
+    start_pos_tuple = (int(start_vec.x), int(start_vec.y))
+    target_pos_tuple = (int(target_vec.x), int(target_vec.y))
+    corner_pos_tuple = (int(corner_vec.x), int(corner_vec.y))
+
     # --- 2. Draw the Triangle Components ---
-    if delta_x > 0: pygame.draw.line(screen, TRIANGLE_COLOR, (x_start, y_start), (corner_x, corner_y), LINE_WIDTH)
-    if delta_y > 0: pygame.draw.line(screen, TRIANGLE_COLOR, (corner_x, corner_y), (x_target, y_target), LINE_WIDTH)
-    if delta_x > 0 or delta_y > 0: pygame.draw.line(screen, HYPOTENUSE_COLOR, (x_start, y_start), (x_target, y_target), HYPOTENUSE_LINE_WIDTH)
-    # --- 3. Render, Position, Clamp, and Blit Labels ---
+    if delta_x > 0: pygame.draw.line(screen, TRIANGLE_COLOR, start_pos_tuple, corner_pos_tuple, LINE_WIDTH)
+    if delta_y > 0: pygame.draw.line(screen, TRIANGLE_COLOR, corner_pos_tuple, target_pos_tuple, LINE_WIDTH)
+    if delta_x > 0 or delta_y > 0: pygame.draw.line(screen, HYPOTENUSE_COLOR, start_pos_tuple, target_pos_tuple, HYPOTENUSE_LINE_WIDTH)
+
+    # --- 3. Render, Position, Clamp, and Blit Labels (using global GAME_FONT, TEXT_COLOR) ---
     if delta_x >= MIN_LABEL_LENGTH:
-        text_horiz_str = f"{delta_x}px"
-        text_horiz_surf = font.render(text_horiz_str, True, text_color) # Use text_color arg
-        text_horiz_rect = text_horiz_surf.get_rect(centerx=(x_start + x_target) // 2)
-        if y_target <= y_start: text_horiz_rect.top = y_start + TEXT_PADDING
-        else: text_horiz_rect.bottom = y_start - TEXT_PADDING
+        text_horiz_str = f"{delta_x:.0f}px" # Use .0f for cleaner int display
+        text_horiz_surf = GAME_FONT.render(text_horiz_str, True, TEXT_COLOR)
+        text_horiz_rect = text_horiz_surf.get_rect(centerx=int((start_vec.x + target_vec.x) / 2))
+        # Position using vector components
+        if target_vec.y <= start_vec.y: text_horiz_rect.top = int(start_vec.y + TEXT_PADDING)
+        else: text_horiz_rect.bottom = int(start_vec.y - TEXT_PADDING)
         final_horiz_rect = clamp_rect_to_screen(text_horiz_rect, screen_width, screen_height)
         screen.blit(text_horiz_surf, final_horiz_rect)
+
     if delta_y >= MIN_LABEL_LENGTH:
-        text_vert_str = f"{delta_y}px"
-        text_vert_surf = font.render(text_vert_str, True, text_color) # Use text_color arg
-        text_vert_rect = text_vert_surf.get_rect(centery=(y_start + y_target) // 2)
-        if x_target >= x_start: text_vert_rect.left = x_target + TEXT_PADDING
-        else: text_vert_rect.right = x_target - TEXT_PADDING
+        text_vert_str = f"{delta_y:.0f}px"
+        text_vert_surf = GAME_FONT.render(text_vert_str, True, TEXT_COLOR)
+        text_vert_rect = text_vert_surf.get_rect(centery=int((start_vec.y + target_vec.y) / 2))
+        # Position using vector components
+        if target_vec.x >= start_vec.x: text_vert_rect.left = int(target_vec.x + TEXT_PADDING)
+        else: text_vert_rect.right = int(target_vec.x - TEXT_PADDING)
         final_vert_rect = clamp_rect_to_screen(text_vert_rect, screen_width, screen_height)
         screen.blit(text_vert_surf, final_vert_rect)
 
 
-# MODIFIED: animate_missile_and_explosion (simpler, no final draw/pause)
+# Now uses Vector2
 def animate_missile_and_explosion(
     screen: pygame.Surface,
     clock: pygame.time.Clock,
-    # font: pygame.font.Font, # No longer needed here
-    # screen_width: int,     # No longer needed here
-    # screen_height: int,    # No longer needed here
-    start_pos: tuple[int, int],
-    target_pos: tuple[int, int],
+    start_vec: Vector2,    # Use Vector2
+    target_vec: Vector2,   # Use Vector2
     players_guess: int
 ):
-    """Animates missile flight and explosion. Does NOT draw final state."""
-    x_start, y_start = start_pos
-    x_target, y_target = target_pos
+    """Animates missile flight and explosion using Vector2."""
     guessed_length_px = players_guess * 100.0
-    start_vec = pygame.math.Vector2(start_pos)
-    target_vec = pygame.math.Vector2(target_pos)
+    # start_vec and target_vec are already vectors
     direction_vec = target_vec - start_vec
     true_length = direction_vec.length()
 
     if true_length < 0.01:
         print("Start/Target same, skipping animation.")
-        # Need a small pause even here if skipping, otherwise feels instant
         pygame.time.wait(100)
-        return # Exit early
+        return
 
     unit_vec = direction_vec.normalize()
+
+    # Convenience tuples for drawing functions (static points)
+    start_pos_tuple = (int(start_vec.x), int(start_vec.y))
+    target_pos_tuple = (int(target_vec.x), int(target_vec.y))
+    corner_pos_tuple = (int(target_vec.x), int(start_vec.y)) # Recalculate tuple form
 
     # --- Phase 1: Missile Flight ---
     current_missile_length = 0.0
     while current_missile_length < guessed_length_px:
         dt = clock.tick(60)
-        for event in pygame.event.get(): # Essential event handling
+        for event in pygame.event.get():
             if event.type == pygame.QUIT: pygame.quit(); exit()
 
         elapsed_time_frame = dt
         current_missile_length += MISSILE_SPEED_PPT * (elapsed_time_frame / 1000.0)
         current_missile_length = min(current_missile_length, guessed_length_px)
+
         missile_end_vec = start_vec + unit_vec * current_missile_length
-        missile_end_pos = (int(missile_end_vec.x), int(missile_end_vec.y))
+        missile_end_pos_tuple = (int(missile_end_vec.x), int(missile_end_vec.y)) # Tuple for drawing
 
         # Redraw basic scene for animation frame
         screen.fill(pygame.Color('black'))
-        if abs(x_target - x_start) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, start_pos, (x_target, y_start), LINE_WIDTH)
-        if abs(y_target - y_start) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, (x_target, y_start), target_pos, LINE_WIDTH)
-        pygame.draw.line(screen, HYPOTENUSE_COLOR, start_pos, target_pos, HYPOTENUSE_LINE_WIDTH)
-        pygame.draw.circle(screen, pygame.Color('pink'), start_pos, 10)
-        pygame.draw.circle(screen, pygame.Color('pink'), target_pos, 10)
-        if current_missile_length > 0.1: pygame.draw.line(screen, MISSILE_COLOR, start_pos, missile_end_pos, MISSILE_WIDTH)
+        if abs(target_vec.x - start_vec.x) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, start_pos_tuple, corner_pos_tuple, LINE_WIDTH)
+        if abs(target_vec.y - start_vec.y) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, corner_pos_tuple, target_pos_tuple, LINE_WIDTH)
+        pygame.draw.line(screen, HYPOTENUSE_COLOR, start_pos_tuple, target_pos_tuple, HYPOTENUSE_LINE_WIDTH)
+        pygame.draw.circle(screen, pygame.Color('pink'), start_pos_tuple, 10)
+        pygame.draw.circle(screen, pygame.Color('pink'), target_pos_tuple, 10)
+        if current_missile_length > 0.1: pygame.draw.line(screen, MISSILE_COLOR, start_pos_tuple, missile_end_pos_tuple, MISSILE_WIDTH)
         pygame.display.flip()
         if current_missile_length >= guessed_length_px: break
 
     explosion_center_vec = start_vec + unit_vec * guessed_length_px
-    explosion_center = (int(explosion_center_vec.x), int(explosion_center_vec.y))
+    explosion_center_tuple = (int(explosion_center_vec.x), int(explosion_center_vec.y)) # Tuple for drawing
 
     # --- Phase 2: Explosion ---
     explosion_start_time = pygame.time.get_ticks()
     current_explosion_time = 0
     while current_explosion_time < EXPLOSION_DURATION_MS:
         dt = clock.tick(60)
-        for event in pygame.event.get(): # Essential event handling
+        for event in pygame.event.get():
             if event.type == pygame.QUIT: pygame.quit(); exit()
 
         current_explosion_time = pygame.time.get_ticks() - explosion_start_time
@@ -149,111 +162,121 @@ def animate_missile_and_explosion(
 
         # Redraw basic scene for animation frame
         screen.fill(pygame.Color('black'))
-        if abs(x_target - x_start) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, start_pos, (x_target, y_start), LINE_WIDTH)
-        if abs(y_target - y_start) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, (x_target, y_start), target_pos, LINE_WIDTH)
-        pygame.draw.line(screen, HYPOTENUSE_COLOR, start_pos, target_pos, HYPOTENUSE_LINE_WIDTH)
-        pygame.draw.circle(screen, pygame.Color('pink'), start_pos, 10)
-        pygame.draw.circle(screen, pygame.Color('pink'), target_pos, 10)
-        if guessed_length_px > 0.1: pygame.draw.line(screen, MISSILE_COLOR, start_pos, explosion_center, MISSILE_WIDTH) # Final missile line
-        if radius_outer > 0: pygame.draw.circle(screen, EXPLOSION_COLOR_OUTER, explosion_center, int(radius_outer), 0)
-        if radius_inner > 0: pygame.draw.circle(screen, EXPLOSION_COLOR_INNER, explosion_center, int(radius_inner), 0)
+        if abs(target_vec.x - start_vec.x) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, start_pos_tuple, corner_pos_tuple, LINE_WIDTH)
+        if abs(target_vec.y - start_vec.y) > 0: pygame.draw.line(screen, TRIANGLE_COLOR, corner_pos_tuple, target_pos_tuple, LINE_WIDTH)
+        pygame.draw.line(screen, HYPOTENUSE_COLOR, start_pos_tuple, target_pos_tuple, HYPOTENUSE_LINE_WIDTH)
+        pygame.draw.circle(screen, pygame.Color('pink'), start_pos_tuple, 10)
+        pygame.draw.circle(screen, pygame.Color('pink'), target_pos_tuple, 10)
+        # Use explosion_center_tuple for missile and circles
+        if guessed_length_px > 0.1: pygame.draw.line(screen, MISSILE_COLOR, start_pos_tuple, explosion_center_tuple, MISSILE_WIDTH)
+        if radius_outer > 0: pygame.draw.circle(screen, EXPLOSION_COLOR_OUTER, explosion_center_tuple, int(radius_outer), 0)
+        if radius_inner > 0: pygame.draw.circle(screen, EXPLOSION_COLOR_INNER, explosion_center_tuple, int(radius_inner), 0)
         pygame.display.flip()
-    # Animation function now simply finishes after the explosion loop.
 
 
-# --- NEW Final State Drawing Function ---
 def draw_final_state(
     screen: pygame.Surface,
-    font: pygame.font.Font,
+    # font: pygame.font.Font, # Removed
     screen_width: int,
     screen_height: int,
-    start_pos: tuple[int, int],
-    target_pos: tuple[int, int],
-    players_guess: int # Guess in units of 100px
+    start_vec: Vector2,       # Use Vector2
+    target_vec: Vector2,      # Use Vector2
+    players_guess: int
 ):
-    """
-    Draws the complete final scene after animation: triangle, side labels,
-    missile line, explosion, and guess vs true length label.
-    Assumes background is already filled.
-    """
-    x_start, y_start = start_pos
-    x_target, y_target = target_pos
+    """Draws final scene using Vector2 and global font/colors."""
+    if GAME_FONT is None: # Safety check
+        print("ERROR: GAME_FONT not initialized!")
+        return
 
-    # --- Calculations (needed for drawing elements) ---
+    # --- Calculations ---
     guessed_length_px = players_guess * 100.0
-    start_vec = pygame.math.Vector2(start_pos)
-    target_vec = pygame.math.Vector2(target_pos)
+    # start_vec, target_vec already vectors
     direction_vec = target_vec - start_vec
     true_length = direction_vec.length()
-
-    # Avoid division by zero if start == target
-    unit_vec = pygame.math.Vector2(0, 0)
-    if true_length > 0.01:
-        unit_vec = direction_vec.normalize()
-
+    unit_vec = Vector2(0, 0)
+    if true_length > 0.01: unit_vec = direction_vec.normalize()
     explosion_center_vec = start_vec + unit_vec * guessed_length_px
-    explosion_center = (int(explosion_center_vec.x), int(explosion_center_vec.y))
+
+    # Tuples for drawing
+    start_pos_tuple = (int(start_vec.x), int(start_vec.y))
+    target_pos_tuple = (int(target_vec.x), int(target_vec.y))
+    explosion_center_tuple = (int(explosion_center_vec.x), int(explosion_center_vec.y))
 
     # --- Drawing ---
-    # 1. Draw base triangle, side labels, original hypotenuse path
-    #    Using a different color for side labels in final state for contrast
-    draw_right_triangle_with_labels(screen, font, screen_width, screen_height,
-                                    x_start, y_start, x_target, y_target,
-                                    text_color=RESULT_TEXT_COLOR) # Use cyan for side labels now
+    # 1. Base triangle, side labels (using RESULT_TEXT_COLOR now via global)
+    #    Need to modify draw_right_triangle_with_labels to use RESULT_TEXT_COLOR internally
+    #    OR pass color again OR handle it here. Let's handle it here by not calling it.
+    #    Re-implement drawing needed elements directly:
+    corner_vec = Vector2(target_vec.x, start_vec.y)
+    corner_pos_tuple = (int(corner_vec.x), int(corner_vec.y))
+    delta_x = abs(start_vec.x - target_vec.x)
+    delta_y = abs(start_vec.y - target_vec.y)
+    # Draw Legs/Hypotenuse
+    if delta_x > 0: pygame.draw.line(screen, TRIANGLE_COLOR, start_pos_tuple, corner_pos_tuple, LINE_WIDTH)
+    if delta_y > 0: pygame.draw.line(screen, TRIANGLE_COLOR, corner_pos_tuple, target_pos_tuple, LINE_WIDTH)
+    if delta_x > 0 or delta_y > 0: pygame.draw.line(screen, HYPOTENUSE_COLOR, start_pos_tuple, target_pos_tuple, HYPOTENUSE_LINE_WIDTH)
+    # Draw Side Labels (using RESULT_TEXT_COLOR)
+    if delta_x >= MIN_LABEL_LENGTH:
+        text_horiz_str = f"{delta_x:.0f}px"
+        text_horiz_surf = GAME_FONT.render(text_horiz_str, True, RESULT_TEXT_COLOR) # Use result color
+        text_horiz_rect = text_horiz_surf.get_rect(centerx=int((start_vec.x + target_vec.x) / 2))
+        if target_vec.y <= start_vec.y: text_horiz_rect.top = int(start_vec.y + TEXT_PADDING)
+        else: text_horiz_rect.bottom = int(start_vec.y - TEXT_PADDING)
+        final_horiz_rect = clamp_rect_to_screen(text_horiz_rect, screen_width, screen_height)
+        screen.blit(text_horiz_surf, final_horiz_rect)
+    if delta_y >= MIN_LABEL_LENGTH:
+        text_vert_str = f"{delta_y:.0f}px"
+        text_vert_surf = GAME_FONT.render(text_vert_str, True, RESULT_TEXT_COLOR) # Use result color
+        text_vert_rect = text_vert_surf.get_rect(centery=int((start_vec.y + target_vec.y) / 2))
+        if target_vec.x >= start_vec.x: text_vert_rect.left = int(target_vec.x + TEXT_PADDING)
+        else: text_vert_rect.right = int(target_vec.x - TEXT_PADDING)
+        final_vert_rect = clamp_rect_to_screen(text_vert_rect, screen_width, screen_height)
+        screen.blit(text_vert_surf, final_vert_rect)
 
-    # 2. Draw start/target points (optional, but good for context)
-    pygame.draw.circle(screen, pygame.Color('pink'), start_pos, 10)
-    pygame.draw.circle(screen, pygame.Color('pink'), target_pos, 10)
+    # 2. Start/target points
+    pygame.draw.circle(screen, pygame.Color('pink'), start_pos_tuple, 10)
+    pygame.draw.circle(screen, pygame.Color('pink'), target_pos_tuple, 10)
 
-    # 3. Draw the final missile line (from start to explosion)
-    #    Only draw if guess was non-zero to avoid dot at start
+    # 3. Final missile line
     if guessed_length_px > 0.1:
-        pygame.draw.line(screen, MISSILE_COLOR, start_pos, explosion_center, MISSILE_WIDTH)
+        pygame.draw.line(screen, MISSILE_COLOR, start_pos_tuple, explosion_center_tuple, MISSILE_WIDTH)
 
-    # 4. Draw the final explosion state (max radius)
-    pygame.draw.circle(screen, EXPLOSION_COLOR_OUTER, explosion_center, EXPLOSION_RADIUS_OUTER_MAX, 0)
-    pygame.draw.circle(screen, EXPLOSION_COLOR_INNER, explosion_center, EXPLOSION_RADIUS_INNER_MAX, 0)
+    # 4. Final explosion state
+    pygame.draw.circle(screen, EXPLOSION_COLOR_OUTER, explosion_center_tuple, EXPLOSION_RADIUS_OUTER_MAX, 0)
+    pygame.draw.circle(screen, EXPLOSION_COLOR_INNER, explosion_center_tuple, EXPLOSION_RADIUS_INNER_MAX, 0)
 
-    # 5. Prepare and draw the "Guess vs. True" label near the explosion
+    # 5. "Guess vs. True" label (using global GAME_FONT, GUESS_VS_TRUE_COLOR)
     guess_vs_true_text = f"Guess: {guessed_length_px:.0f}px | True: {true_length:.1f}px"
-    guess_vs_true_surf = font.render(guess_vs_true_text, True, GUESS_VS_TRUE_COLOR)
-
-    # Position the label relative to the explosion center
-    # Try placing it just above the outer explosion radius
-    label_rect = guess_vs_true_surf.get_rect(centerx=explosion_center[0],
-                                             bottom=explosion_center[1] - EXPLOSION_RADIUS_OUTER_MAX - TEXT_PADDING)
-
-    # Adjust if it goes off screen top/bottom primarily
-    if label_rect.top < TEXT_PADDING: # If too high, move below explosion
-        label_rect.top = explosion_center[1] + EXPLOSION_RADIUS_OUTER_MAX + TEXT_PADDING
-    # Clamp horizontally too
+    guess_vs_true_surf = GAME_FONT.render(guess_vs_true_text, True, GUESS_VS_TRUE_COLOR)
+    label_rect = guess_vs_true_surf.get_rect(centerx=explosion_center_tuple[0],
+                                             bottom=explosion_center_tuple[1] - EXPLOSION_RADIUS_OUTER_MAX - TEXT_PADDING)
+    if label_rect.top < TEXT_PADDING:
+        label_rect.top = explosion_center_tuple[1] + EXPLOSION_RADIUS_OUTER_MAX + TEXT_PADDING
     final_label_rect = clamp_rect_to_screen(label_rect, screen_width, screen_height)
-
     screen.blit(guess_vs_true_surf, final_label_rect)
 
 
-# --- Example Usage (Main Loop using the new structure) ---
+# --- Example Usage (Main Loop using Vector2 and globals) ---
 if __name__ == '__main__':
     pygame.init()
 
-    # --- Font Loading ---
-    game_font = None
+    # --- Initialize Font AFTER pygame.init() and store globally ---
     try:
-        # ... (font loading code - unchanged) ...
         print("Attempting to load system font 'dejavusansmono'...")
-        game_font = pygame.font.SysFont('dejavusansmono', FONT_SIZE)
+        GAME_FONT = pygame.font.SysFont('dejavusansmono', FONT_SIZE)
         print("System font loaded successfully.")
     except pygame.error as e:
         print(f"Warning: Could not load system font ('dejavusansmono'): {e}")
+        # ... (rest of font loading fallback logic - unchanged) ...
         try:
              print("Attempting to load system font 'monospace'...")
-             game_font = pygame.font.SysFont('monospace', FONT_SIZE)
+             GAME_FONT = pygame.font.SysFont('monospace', FONT_SIZE)
              print("System font 'monospace' loaded successfully.")
         except pygame.error as e2:
             print(f"Warning: Could not load system font ('monospace'): {e2}")
             try:
                 print("Attempting to load Pygame default font...")
-                game_font = pygame.font.Font(None, FONT_SIZE)
+                GAME_FONT = pygame.font.Font(None, FONT_SIZE)
                 print("Pygame default font loaded successfully.")
             except pygame.error as e3:
                 print(f"CRITICAL: Failed to initialize ANY font: {e3}")
@@ -264,43 +287,46 @@ if __name__ == '__main__':
                 pygame.quit()
                 exit()
 
+    if GAME_FONT is None: # Exit if font loading failed completely
+         print("CRITICAL: Font initialization failed. Exiting.")
+         pygame.quit()
+         exit()
+
+
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Pythagoras Game - Final State Test")
+    pygame.display.set_caption("Pythagoras Game - Vector2 Refactor")
     clock = pygame.time.Clock()
 
-    # --- Game State ---
-    start_pos = (SCREEN_WIDTH // 5, SCREEN_HEIGHT * 4 // 5)
-    target_pos = (SCREEN_WIDTH * 4 // 5, SCREEN_HEIGHT // 5)
-    players_guess_units = 0 # Initialize
+    # --- Game State (using Vector2) ---
+    start_vec = Vector2(SCREEN_WIDTH // 5, SCREEN_HEIGHT * 4 // 5)
+    target_vec = Vector2(0,0) # Placeholder, set in setup
+    players_guess_units = 0
 
     def setup_new_round():
-        """Helper to set up points and guess for a round."""
-        global start_pos, target_pos, players_guess_units # Modify global state
-        # Keep start pos, randomize target
+        """Helper to set up points (as Vectors) and guess for a round."""
+        global start_vec, target_vec, players_guess_units
         t_x = int(SCREEN_WIDTH * (0.2 + 0.6 * (time.time()*0.7 % 1.0)))
         t_y = int(SCREEN_HEIGHT* (0.2 + 0.6 * (time.time()*0.9 % 1.0)))
+        temp_target_vec = Vector2(t_x, t_y)
         # Ensure target is not identical to start
-        while (t_x, t_y) == start_pos:
-             t_y = (t_y + 10) % SCREEN_HEIGHT
-        target_pos = (t_x, t_y)
+        while temp_target_vec == start_vec:
+             temp_target_vec.y = (temp_target_vec.y + 10) % SCREEN_HEIGHT
+        target_vec = temp_target_vec # Assign the valid vector
 
-        dx = target_pos[0] - start_pos[0]
-        dy = target_pos[1] - start_pos[1]
-        true_hypot = math.hypot(dx, dy)
-        # Simulate a guess between 50% and 150% of true length
+        direction_vec = target_vec - start_vec
+        true_hypot = direction_vec.length()
         simulated_guess_px = true_hypot * (0.5 + (time.time()*1.1 % 1.0))
         pgu = round(simulated_guess_px / 100.0)
-        # Ensure guess is at least 0
         players_guess_units = max(0, pgu)
 
         print("-" * 20)
         print(f"New Round Setup:")
-        print(f"Start: {start_pos}, Target: {target_pos}")
+        print(f"Start: {start_vec}, Target: {target_vec}") # Vectors print nicely
         print(f"True hypotenuse: {true_hypot:.1f} px")
         print(f"Player's guess: {players_guess_units} (Simulating {players_guess_units*100} px)")
         print("-" * 20)
 
-    setup_new_round() # Initial setup
+    setup_new_round()
 
     state = "SHOW_TRIANGLE"
     running = True
@@ -310,6 +336,20 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            # Example: Use mouse click to set target vector
+            if event.type == pygame.MOUSEBUTTONDOWN and state == "SHOW_TRIANGLE":
+                 if event.button == 1: # Left click
+                     target_vec = Vector2(event.pos) # Convert tuple from event.pos
+                     # Recalculate guess based on new target for demo
+                     direction_vec = target_vec - start_vec
+                     true_hypot = direction_vec.length()
+                     simulated_guess_px = true_hypot * (0.5 + (time.time()*1.1 % 1.0))
+                     pgu = round(simulated_guess_px / 100.0)
+                     players_guess_units = max(0, pgu)
+                     print(f"New Target set by click: {target_vec}")
+                     print(f"Recalculated True: {true_hypot:.1f}px, New Guess: {players_guess_units} units")
+
+
             if event.type == pygame.KEYDOWN:
                  if state == "SHOW_TRIANGLE" and event.key == pygame.K_SPACE:
                      state = "ANIMATING"
@@ -321,15 +361,15 @@ if __name__ == '__main__':
         # --- Game Logic & Drawing based on State ---
         if state == "SHOW_TRIANGLE":
             screen.fill(pygame.Color('black'))
-            # Draw the initial triangle with standard white labels
-            draw_right_triangle_with_labels(screen, game_font,
+            # Draw initial triangle using vectors and global font
+            draw_right_triangle_with_labels(screen, # No font/color arg
                                             SCREEN_WIDTH, SCREEN_HEIGHT,
-                                            start_pos[0], start_pos[1],
-                                            target_pos[0], target_pos[1])
-            pygame.draw.circle(screen, pygame.Color('pink'), start_pos, 10)
-            pygame.draw.circle(screen, pygame.Color('pink'), target_pos, 10)
+                                            start_vec, target_vec) # Pass vectors
+            # Draw circles using vector components as tuples
+            pygame.draw.circle(screen, pygame.Color('pink'), (int(start_vec.x), int(start_vec.y)), 10)
+            pygame.draw.circle(screen, pygame.Color('pink'), (int(target_vec.x), int(target_vec.y)), 10)
 
-            prompt_surf = game_font.render("Press SPACE to fire missile!", True, TEXT_COLOR)
+            prompt_surf = GAME_FONT.render("Click to set Target | SPACE to fire!", True, PROMPT_TEXT_COLOR)
             prompt_rect = prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, FONT_SIZE))
             screen.blit(prompt_surf, prompt_rect)
 
@@ -337,32 +377,25 @@ if __name__ == '__main__':
             clock.tick(30)
 
         elif state == "ANIMATING":
-            # Animation function takes over temporarily
             animate_missile_and_explosion(
                 screen, clock,
-                # font, screen_width, screen_height, # No longer needed args
-                start_pos, target_pos,
+                start_vec, target_vec, # Pass vectors
                 players_guess_units
             )
-            state = "POST_ANIMATION" # Move to next state after animation returns
+            state = "POST_ANIMATION"
 
         elif state == "POST_ANIMATION":
-            # This state now repeatedly draws the final scene using the new function
             screen.fill(pygame.Color('black'))
-
-            # Call the dedicated function to draw the final state
-            draw_final_state(screen, game_font,
-                             SCREEN_WIDTH, SCREEN_HEIGHT,
-                             start_pos, target_pos,
+            # Draw final state using vectors and global font
+            draw_final_state(screen, # No font arg
+                             start_vec, target_vec, # Pass vectors
                              players_guess_units)
 
-            # Add prompt overlay
-            prompt_surf = game_font.render("Animation Complete. Press R to Reset.", True, TEXT_COLOR)
+            prompt_surf = GAME_FONT.render("Animation Complete. Press R to Reset.", True, PROMPT_TEXT_COLOR)
             prompt_rect = prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, FONT_SIZE))
             screen.blit(prompt_surf, prompt_rect)
 
             pygame.display.flip()
-            clock.tick(30) # Keep CPU usage reasonable in static state
-
+            clock.tick(30)
 
     pygame.quit()

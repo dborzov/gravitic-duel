@@ -13,6 +13,7 @@ FPS = 60
 
 
 # Key mappings
+MISSILE_GRAIN = 75
 PLAYER1_UP = pygame.K_w
 PLAYER1_DOWN = pygame.K_s
 PLAYER1_LEFT = pygame.K_a

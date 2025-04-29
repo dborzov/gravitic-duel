@@ -18,7 +18,7 @@ class World:
         )
         self.rocket2 = Rocket(
             x=3 * SCREEN_WIDTH // 4, 
-            y=2 * SCREEN_HEIGHT // 3,
+            y=1 * SCREEN_HEIGHT // 3,
             rotation=90,
         )
     
