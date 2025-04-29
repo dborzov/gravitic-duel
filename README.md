@@ -1,9 +1,13 @@
 
-# Stupid Space Game
+# Triangles in Space!
+
+![Img](./screenshots/screenshot2.jpeg)
 
 ![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
-A 2D multiplayer space combat arena game built with Python and Pygame where in order to win it helps to know your right triangles.
+
+
+A 2D multiplayer space combat arena game built with Python and Pygame where in order to win it helps to know your right triangles and square roots.
 
 ## Description
 
@@ -13,7 +17,7 @@ A 2D multiplayer space combat arena game built with Python and Pygame where in o
 
 Control keys: 
 * player 1 (WASD for movement, Q to shoot);
-* player 2 (NumPad arrows for movement, 7 to shoot).
+* player 2 (NumPad arrows for movement, NumPad's 7 to shoot).
 
 In order to shoot one has to charge their mana to 100% by bouncing off the planets and their moons: the harder is bouncing, the higher is the mana charge up.
 
@@ -29,8 +33,7 @@ The player is given the lengths of the right triangle's sides to help them make 
 
 **"Triangles in Space!"** is very much a **non-educational** game. It's classic brainrot and poorly coded mayhem we are all weirdly attracted too. It's great.
 
-Still,  having some understanding of the right triangles, or being able to casually eyeball approximate square roots in your head, makes you better at this game. 
-But, no one will TRY to teach anyone anything.   
+Still,  having some understanding of the right triangles, or being able to casually eyeball approximate square roots in your head, makes you better at this game. Just like in real life, mathy things sometimes comes up.
 
 Why? Education is when adults treat kids' minds the same way they treat all those boxes they have in their garages: fill 'em with random junk in case "they need it someday".
 
