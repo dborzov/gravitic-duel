@@ -8,6 +8,8 @@ FONT_SIZE = 34
 
 # --- Constants for Health Bar Style ---
 # Colors (RGB)
+COLOR_MANA_TEXT = (255, 255, 255)  # Light blue for mana text
+TEXT_PADDING = 10                # Pixels between bar and text
 COLOR_HEALTH_P1 = (0, 255, 0)      # Green for Player 1 health
 COLOR_HEALTH_P2 = (255, 255, 0)    # Yellow for Player 2 health (or same as P1)
 COLOR_DEPLETED = (100, 0, 0)     # Dark red for depleted health background
@@ -67,29 +69,21 @@ def get_numbers_ui():
     return numbers_ui
 
 
-def draw_fighter_health_bars(screen, health1, max_health1, health2, max_health2):
-    """
-    Draws two fighting-game style health bars at the top of the screen.
-
-    Args:
-        screen (pygame.Surface): The main display surface to draw on.
-        health1 (float or int): Current health of Player 1 (left side).
-        max_health1 (float or int): Maximum possible health of Player 1.
-        health2 (float or int): Current health of Player 2 (right side).
-        max_health2 (float or int): Maximum possible health of Player 2.
-    """
+def draw_fighter_ui(screen, 
+                    health1, max_health1, mana1, 
+                    health2, max_health2, mana2):
     screen_width = screen.get_width()
     bar_max_width = int(screen_width * BAR_WIDTH_PERCENT)
 
     # --- Input Validation / Clamping ---
-    # Ensure health doesn't go below 0 for calculation purposes
     current_health1 = max(0, health1)
+    current_mana1 = max(0, mana1)
     current_health2 = max(0, health2)
-    # Prevent division by zero if max_health is somehow zero
-    if max_health1 <= 0: max_health1 = 1
-    if max_health2 <= 0: max_health2 = 1
+    current_mana2 = max(0, mana2)
 
-    # --- Calculate Health Ratios ---
+
+
+    # --- Calculate Ratios ---
     health_ratio1 = current_health1 / max_health1
     health_ratio2 = current_health2 / max_health2
 
@@ -97,7 +91,7 @@ def draw_fighter_health_bars(screen, health1, max_health1, health2, max_health2)
     current_bar_width1 = int(bar_max_width * health_ratio1)
     current_bar_width2 = int(bar_max_width * health_ratio2)
 
-    # --- Define Bar Rectangles ---
+    # --- Define Bar Rectangles (Same as before) ---
     # Player 1 (Left)
     bg_rect1 = pygame.Rect(SIDE_MARGIN, TOP_MARGIN, bar_max_width, BAR_HEIGHT)
     health_rect1 = pygame.Rect(SIDE_MARGIN, TOP_MARGIN, current_bar_width1, BAR_HEIGHT)
@@ -107,13 +101,9 @@ def draw_fighter_health_bars(screen, health1, max_health1, health2, max_health2)
         bar_max_width + (BORDER_THICKNESS * 2),
         BAR_HEIGHT + (BORDER_THICKNESS * 2)
     )
-
-    # Player 2 (Right) - Note the x-coordinate calculation for health_rect2
-    # The background starts from the right edge minus its width
+    # Player 2 (Right)
     bg_rect2_x = screen_width - SIDE_MARGIN - bar_max_width
     bg_rect2 = pygame.Rect(bg_rect2_x, TOP_MARGIN, bar_max_width, BAR_HEIGHT)
-    # The health bar's left edge moves left as health decreases.
-    # Its right edge stays aligned with the background's right edge.
     health_rect2_x = screen_width - SIDE_MARGIN - current_bar_width2
     health_rect2 = pygame.Rect(health_rect2_x, TOP_MARGIN, current_bar_width2, BAR_HEIGHT)
     border_rect2 = pygame.Rect(
@@ -123,18 +113,35 @@ def draw_fighter_health_bars(screen, health1, max_health1, health2, max_health2)
         BAR_HEIGHT + (BORDER_THICKNESS * 2)
     )
 
-    # --- Draw the Bars ---
-    # Optional: Draw a background panel behind the bars if desired
-    # panel_height = BAR_HEIGHT + BORDER_THICKNESS * 2 + 10 # Example padding
-    # panel_rect = pygame.Rect(0, TOP_MARGIN - BORDER_THICKNESS - 5, screen_width, panel_height)
-    # pygame.draw.rect(screen, COLOR_BACKGROUND, panel_rect)
+    # --- Draw Health Bars (Same as before) ---
+    pygame.draw.rect(screen, COLOR_BORDER, border_rect1)
+    pygame.draw.rect(screen, COLOR_DEPLETED, bg_rect1)
+    pygame.draw.rect(screen, COLOR_HEALTH_P1, health_rect1)
 
-    # Player 1
-    pygame.draw.rect(screen, COLOR_BORDER, border_rect1)      # Border first
-    pygame.draw.rect(screen, COLOR_DEPLETED, bg_rect1)       # Then background (depleted)
-    pygame.draw.rect(screen, COLOR_HEALTH_P1, health_rect1)  # Then current health
+    pygame.draw.rect(screen, COLOR_BORDER, border_rect2)
+    pygame.draw.rect(screen, COLOR_DEPLETED, bg_rect2)
+    pygame.draw.rect(screen, COLOR_HEALTH_P2, health_rect2)
 
-    # Player 2
-    pygame.draw.rect(screen, COLOR_BORDER, border_rect2)      # Border first
-    pygame.draw.rect(screen, COLOR_DEPLETED, bg_rect2)       # Then background (depleted)
-    pygame.draw.rect(screen, COLOR_HEALTH_P2, health_rect2)  # Then current health
+    # --- Mana Text ---
+
+    # Format Text Strings
+    mana_text_str1 = f"{int(mana1)}%"
+    mana_text_str2 = f"{int(mana2)}%"
+
+    # Render Text Surfaces (Anti-aliased)
+    mana_surf1 = GAME_FONT.render(mana_text_str1, True, COLOR_MANA_TEXT)
+    mana_surf2 = GAME_FONT.render(mana_text_str2, True, COLOR_MANA_TEXT)
+
+    # Get Text Rects and Position Them
+    mana_rect1 = mana_surf1.get_rect()
+    mana_rect2 = mana_surf2.get_rect()
+
+    # Position P1 text to the right of P1 health bar
+    mana_rect1.midleft = (border_rect1.right + TEXT_PADDING, border_rect1.centery)
+
+    # Position P2 text to the left of P2 health bar
+    mana_rect2.midright = (border_rect2.left - TEXT_PADDING, border_rect2.centery)
+
+    # Blit Mana Text
+    screen.blit(mana_surf1, mana_rect1)
+    screen.blit(mana_surf2, mana_rect2)

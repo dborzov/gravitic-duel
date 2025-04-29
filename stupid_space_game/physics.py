@@ -40,6 +40,7 @@ def resolve_rocket_celestial_collision(rocket: 'Rocket', celestial: 'CelestialEn
 
     normal = normal.normalize()
     
+    
     # 2. Calculate relative velocity
     # Assuming celestial bodies are static or their velocity is negligible for bounce calculation
     relative_v = rocket.velocity + celestial.orbit_velocity()
@@ -47,6 +48,12 @@ def resolve_rocket_celestial_collision(rocket: 'Rocket', celestial: 'CelestialEn
     # 3. Calculate impulse scalar (dot product of relative velocity and normal)
     impulse_scalar = relative_v.dot(normal)
     
+    # charges manna proprotional to the impulse
+    rocket.mana += abs(impulse_scalar* 0.3) 
+    print(f"impulse boost: {abs(impulse_scalar* 0.3)} | mana: {rocket.mana}")
+    if rocket.mana > 100.0:
+        rocket.mana = 100.0
+
     # 4. Calculate reflected velocity (only if moving towards each other)
     if impulse_scalar < 0:
         # Reflect velocity component along the normal

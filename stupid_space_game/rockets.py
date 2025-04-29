@@ -8,6 +8,7 @@ from stupid_space_game.constants import DEFAULT_HP
 class Rocket:
     def __init__(self, x: float = 0, y: float = 0, rotation: float = 0) -> None:
         self.hp = DEFAULT_HP
+        self.mana = 0.0
         self.position = pygame.math.Vector2(x, y)
         self.velocity = pygame.math.Vector2(0, 0)
         self.rotation = rotation
