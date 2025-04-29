@@ -1,11 +1,5 @@
 import pygame
 
-GAME_FONT: pygame.font.Font = None
-LARGE_FONT: pygame.font.Font = None
-
-numbers_ui = None
-FONT_SIZE = 34
-
 # --- Constants for Health Bar Style ---
 # Colors (RGB)
 COLOR_HEALTH_P1 = (0, 255, 0)      # Green for Player 1 health
@@ -21,51 +15,7 @@ SIDE_MARGIN = 20
 BORDER_THICKNESS = 3
 BAR_WIDTH_PERCENT = 0.4 # Percentage of screen width for each bar
 
-def ui_init():
-    global GAME_FONT, LARGE_FONT, numbers_ui
-    print("Initializing UI")
-    GAME_FONT = pygame.font.Font(None, 24)
-    LARGE_FONT = pygame.font.Font(None, 48)
-    try:
-        print("Attempting to load system font 'dejavusansmono'...")
-        GAME_FONT = pygame.font.SysFont('dejavusansmono', FONT_SIZE)
-        print("System font loaded successfully.")
-    except pygame.error as e:
-        print(f"Warning: Could not load system font ('dejavusansmono'): {e}")
-        # ... (rest of font loading fallback logic - unchanged) ...
-        try:
-             print("Attempting to load system font 'monospace'...")
-             GAME_FONT = pygame.font.SysFont('monospace', FONT_SIZE)
-             print("System font 'monospace' loaded successfully.")
-        except pygame.error as e2:
-            print(f"Warning: Could not load system font ('monospace'): {e2}")
-            try:
-                print("Attempting to load Pygame default font...")
-                GAME_FONT = pygame.font.Font(None, FONT_SIZE)
-                print("Pygame default font loaded successfully.")
-            except pygame.error as e3:
-                print(f"CRITICAL: Failed to initialize ANY font: {e3}")
-                pygame.quit()
-                exit()
-            except Exception as e_general:
-                print(f"CRITICAL: An unexpected error occurred during font loading: {e_general}")
-                pygame.quit()
-                exit()
-
-    if GAME_FONT is None: # Exit if font loading failed completely
-         raise ValueError("CRITICAL: Font initialization failed. Exiting.")
-    
-    numbers_ui = pygame.image.load('./assets/numbers.png').convert_alpha()
-
-def get_game_font():
-    return GAME_FONT
-
-def get_large_font():
-    return LARGE_FONT
-
-def get_numbers_ui():
-    return numbers_ui
-
+# --- The Drawing Function ---
 
 def draw_fighter_health_bars(screen, health1, max_health1, health2, max_health2):
     """
@@ -138,3 +88,71 @@ def draw_fighter_health_bars(screen, health1, max_health1, health2, max_health2)
     pygame.draw.rect(screen, COLOR_BORDER, border_rect2)      # Border first
     pygame.draw.rect(screen, COLOR_DEPLETED, bg_rect2)       # Then background (depleted)
     pygame.draw.rect(screen, COLOR_HEALTH_P2, health_rect2)  # Then current health
+
+
+# --- Example Usage (within your Pygame main loop) ---
+
+if __name__ == '__main__': # Example simulation if run directly
+    pygame.init()
+    screen_width = 800
+    screen_height = 600
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    pygame.display.set_caption("Health Bar Demo")
+    clock = pygame.time.Clock()
+
+    # Dummy World and Rocket objects for demonstration
+    class MockRocket:
+        def __init__(self, max_hp):
+            self.max_health = max_hp
+            self.health = max_hp
+
+    class MockWorld:
+        def __init__(self):
+            self.rocket1 = MockRocket(150)
+            self.rocket2 = MockRocket(100) # Can have different max health
+
+    world = MockWorld()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                 # Simulate damage
+                if event.key == pygame.K_q: # Q damages P1
+                    world.rocket1.health -= 10
+                if event.key == pygame.K_p: # P damages P2
+                    world.rocket2.health -= 10
+                if event.key == pygame.K_r: # R resets health
+                    world.rocket1.health = world.rocket1.max_health
+                    world.rocket2.health = world.rocket2.max_health
+
+
+        # --- Game Logic Update ---
+        # (Your game logic here)
+        # Clamp health in game logic if needed (optional here as draw func handles < 0)
+        world.rocket1.health = max(0, world.rocket1.health)
+        world.rocket2.health = max(0, world.rocket2.health)
+
+        # --- Drawing ---
+        screen.fill((30, 30, 30)) # Fill background (dark grey)
+
+        # Call the health bar function using the world state
+        draw_fighter_health_bars(
+            screen,
+            world.rocket1.health,
+            world.rocket1.max_health,
+            world.rocket2.health,
+            world.rocket2.max_health
+        )
+
+        # (Draw other game elements like rockets, projectiles, etc.)
+
+        # --- Update Display ---
+        pygame.display.flip()
+
+        # --- Frame Rate Control ---
+        clock.tick(60) # Limit to 60 FPS
+
+    pygame.quit()

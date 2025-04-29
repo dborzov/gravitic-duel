@@ -29,7 +29,8 @@ def main():
         world.draw(screen)
         pygame.display.update()
         if player_shoot_check(keys, world):
-            missile_logic.missile_minigame(screen, clock, world.rocket1.position, world.rocket2.position)
+            damage = missile_logic.missile_minigame(screen, clock, world.rocket1.position, world.rocket2.position)
+            world.rocket2.hp = max(0, world.rocket2.hp - damage)
         clock.tick(30)
 
 if __name__ == "__main__":

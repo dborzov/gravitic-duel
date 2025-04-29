@@ -11,6 +11,7 @@ SCREEN_HEIGHT = 1440
 FPS = 60
 
 
+DEFAULT_HP = 100
 
 # Key mappings
 MISSILE_GRAIN = 75

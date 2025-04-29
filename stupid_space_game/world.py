@@ -6,6 +6,8 @@ import math
 from stupid_space_game.celestials import CelestialEntity
 from stupid_space_game.rockets import Rocket
 import stupid_space_game.physics as physics
+from stupid_space_game.constants import DEFAULT_HP
+from stupid_space_game.ui import draw_fighter_health_bars
 
 class World:
     def __init__(self):
@@ -95,6 +97,8 @@ class World:
         self.star.draw(screen)
         self.rocket1.draw(screen)
         self.rocket2.draw(screen)
+        draw_fighter_health_bars(screen, self.rocket1.hp, DEFAULT_HP, self.rocket2.hp, DEFAULT_HP)
+
 
 
 

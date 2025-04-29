@@ -120,11 +120,12 @@ def draw_final_state(
     start_vec: Vector2,       # Use Vector2
     target_vec: Vector2,      # Use Vector2
     players_guess: int
-):
+) -> int:
     """Draws final scene using Vector2, global font, colors, and screen dimensions."""
     # GAME_FONT check removed, using get_game_font() directly
 
     # --- Calculations ---
+    result_damage = 0
     guessed_length_px = players_guess * MISSILE_GRAIN
     # start_vec, target_vec already vectors
     direction_vec = target_vec - start_vec
@@ -188,13 +189,18 @@ def draw_final_state(
     result = "Missed!"
     if abs(true_length - players_guess*MISSILE_GRAIN) <= EXPLOSION_RADIUS_INNER_MAX:
         result = f"Bullseye!"
+        precision = 1 + 10*abs(players_guess - true_length / MISSILE_GRAIN)
+        result_damage = 100 / precision
     elif abs(true_length - players_guess*MISSILE_GRAIN) <= EXPLOSION_RADIUS_OUTER_MAX:
         result = "Scratched!"
+        result_damage = 20
 
     guess_vs_true_text = f"{result} | Missile: {players_guess} | true distance: {true_length / MISSILE_GRAIN: .1f}"
     prompt_surf = get_large_font().render(guess_vs_true_text, True, PROMPT_TEXT_COLOR)
-    prompt_rect = prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, FONT_SIZE))
+    prompt_rect = prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, 3*FONT_SIZE))
     screen.blit(prompt_surf, prompt_rect)
+    return result_damage
+
 
 
 def draw_right_triangle_with_labels(
@@ -250,7 +256,7 @@ def round_down(x: int, grain: int):
 
 def missile_minigame(
     screen: pygame.Surface,
-    clock: pygame.time.Clock, # Added clock parameter
+    clock: pygame.time.Clock,
     start_vec: Vector2,
     target_vec: Vector2,
 ):  
@@ -264,6 +270,7 @@ def missile_minigame(
     running = True
     # Initialize players_guess_units; it will be updated on click
     players_guess_units = None
+    result_damage = 0
     while running:
         # --- Event Handling ---
         for event in pygame.event.get():
@@ -297,7 +304,7 @@ def missile_minigame(
                         print(f"Firing with guess: {players_guess_units} units") # Debug
                         state = "ANIMATING"
                  elif state == "POST_ANIMATION":
-                    return # Return to calling code/main loop
+                    return result_damage
 
 
         # --- Game Logic & Drawing based on State ---
@@ -335,7 +342,7 @@ def missile_minigame(
             screen.blit(original_frame, (0, 0))
             # Draw final state using vectors and global font/dimensions
             # Removed screen dimension arguments
-            draw_final_state(screen,
+            result_damage = draw_final_state(screen,
                              start_vec, target_vec,
                              players_guess_units)
 
