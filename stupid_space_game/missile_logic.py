@@ -318,7 +318,7 @@ def missile_minigame(
 
             # Use get_game_font()
             prompt_surf = get_game_font().render("Choose how far to launch the missile", True, PROMPT_TEXT_COLOR)
-            prompt_rect = prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, FONT_SIZE)) # Use global SCREEN_WIDTH
+            prompt_rect = prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, 7*FONT_SIZE)) # Use global SCREEN_WIDTH
             numbers_ui = get_numbers_ui()
             numbers_rect = numbers_ui.get_rect()
             numbers_rect.centerx = SCREEN_WIDTH // 2
