@@ -36,16 +36,6 @@ venv.bak/
 *.swo
 .DS_Store
 
-# Pygame specific
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.wav
-*.mp3
-*.ogg
-*.ttf
-*.otf
 
 # Game specific
 *.log
