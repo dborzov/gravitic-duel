@@ -11,6 +11,7 @@ import stupid_space_game.missile_logic as missile_logic
 def main():
     screen = graphics.init_graphics()
     ui.ui_init()
+    ui.show_full_screen(screen, './assets/splash/title.png')
 
     world = World()
     background = graphics.BackgroundGraphics()
@@ -28,10 +29,26 @@ def main():
         background.draw(screen)
         world.draw(screen)
         pygame.display.update()
-        if player_shoot_check(keys, world):
+        if world.rocket1.hp <= 0 or  world.rocket2.hp <= 0:
+            if world.rocket1.hp <= 0 and world.rocket2.hp == 0:
+                ui.show_full_screen(screen, './assets/splash/tie.png')
+            elif world.rocket1.hp <= 0:
+                ui.show_full_screen(screen, './assets/splash/player2.png')
+            elif world.rocket2.hp <= 0:
+                ui.show_full_screen(screen, './assets/splash/player1.png')
+            pygame.quit()
+            sys.exit()
+        shoot = player_shoot_check(keys, world)
+        if shoot == 1:
             damage = missile_logic.missile_minigame(screen, clock, world.rocket1.position, world.rocket2.position)
             world.rocket2.hp = max(0, world.rocket2.hp - damage)
+            world.rocket1.mana = 0
+        elif shoot == 2:
+            damage = missile_logic.missile_minigame(screen, clock, world.rocket2.position, world.rocket1.position)
+            world.rocket1.hp = max(0, world.rocket1.hp - damage)
+            world.rocket2.mana = 0
         clock.tick(30)
 
 if __name__ == "__main__":
     main()
+

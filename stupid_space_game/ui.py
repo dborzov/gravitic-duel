@@ -1,4 +1,5 @@
 import pygame
+from stupid_space_game.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 GAME_FONT: pygame.font.Font = None
 LARGE_FONT: pygame.font.Font = None
@@ -145,3 +146,14 @@ def draw_fighter_ui(screen,
     # Blit Mana Text
     screen.blit(mana_surf1, mana_rect1)
     screen.blit(mana_surf2, mana_rect2)
+
+
+def show_full_screen(screen, filepath):
+    image = pygame.image.load(filepath)
+    image = pygame.transform.scale(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen.blit(image, (0, 0))
+    pygame.display.update()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN): 
+                return

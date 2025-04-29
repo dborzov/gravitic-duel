@@ -34,14 +34,16 @@ def player2_input_control(keys, rocket: Rocket):
 
 
 def player_shoot_check(keys, world):
-    if keys[PLAYER1_FIRE]:
+    if (world.rocket1.mana == 100.0 and keys[PLAYER1_FIRE]) or (world.rocket2.mana == 100.0 and keys[PLAYER2_FIRE]): # so that we dont calculate the distance every loop tick
         distance = world.rocket1.position.distance_to(world.rocket2.position)
         if MISSILE_GRAIN < distance < 10*MISSILE_GRAIN + 1:
             print(f"Not too far, not too close, ready to shoot missile")
             if abs(world.rocket1.position.x - world.rocket2.position.x) > MISSILE_GRAIN - 1:
                 if abs(world.rocket1.position.y - world.rocket2.position.y) > MISSILE_GRAIN - 1:    
-                    return True
-        else:
-            print(f"Player 1 is not ready to shoot missile: {distance}")
-    return False            
+                    if (world.rocket1.mana == 100.0 and keys[PLAYER1_FIRE]):
+                        return 1
+                    elif (world.rocket2.mana == 100.0 and keys[PLAYER2_FIRE]):
+                        return 2
+
+    return None
 

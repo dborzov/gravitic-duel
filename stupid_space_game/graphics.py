@@ -84,3 +84,5 @@ class BackgroundGraphics:
         x = int(self.oscillation_amplitude*math.sin(self.oscillation_angle))
         y = int(self.oscillation_amplitude*math.cos(self.oscillation_angle))
         screen.blit(self.background, (-500 + x, -500 + y))
+
+

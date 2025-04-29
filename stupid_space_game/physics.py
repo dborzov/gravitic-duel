@@ -50,7 +50,6 @@ def resolve_rocket_celestial_collision(rocket: 'Rocket', celestial: 'CelestialEn
     
     # charges manna proprotional to the impulse
     rocket.mana += abs(impulse_scalar* 0.3) 
-    print(f"impulse boost: {abs(impulse_scalar* 0.3)} | mana: {rocket.mana}")
     if rocket.mana > 100.0:
         rocket.mana = 100.0
 
