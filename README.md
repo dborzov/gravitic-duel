@@ -13,9 +13,9 @@ A 2D multiplayer space combat arena game built with Python and Pygame where in o
 
 ![Img](./screenshots/screenshot1.jpeg)
 
-**"Triangles in Space!"** is a little two-player-over-single-keyboard game where two rockets battle each other to the DEATH: 
+**"Triangles in Space!"** is a little two-player-over-single-keyboard game where two rockets battle each other to the DEATH:
 
-Control keys: 
+Control keys:
 * player 1 (WASD for movement, Q to shoot);
 * player 2 (NumPad arrows for movement, NumPad's 7 to shoot).
 
@@ -57,7 +57,7 @@ Ensure you have Python 3.8 or newer installed.
     source .venv/bin/activate
     # On Windows use: .venv\Scripts\activate
     ```
-    
+
 4.  **Install the game and its dependencies:**
     Using `pip` with the current directory (`.`) will install the package based on `pyproject.toml` in editable mode (`-e`) or standard mode.
     ```bash
@@ -74,4 +74,4 @@ Ensure you have Python 3.8 or newer installed.
 Once installed, you can run the game using the script defined in `pyproject.toml`:
 
 ```bash
-./triangles-in-space
+triangles-in-space
