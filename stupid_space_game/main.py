@@ -1,6 +1,7 @@
 import sys
 import pygame
 from stupid_space_game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
+import stupid_space_game.constants as game_constants
 import stupid_space_game.graphics as graphics
 from stupid_space_game.world import World
 from stupid_space_game.controls import player1_input_control,  player2_input_control, player_shoot_check
@@ -9,7 +10,9 @@ import stupid_space_game.missile_logic as missile_logic
 
 
 def main():
-    screen = graphics.init_graphics()
+    screen, actual_width, actual_height = graphics.init_graphics()
+    game_constants.SCREEN_WIDTH = actual_width
+    game_constants.SCREEN_HEIGHT = actual_height
     ui.ui_init()
     ui.show_full_screen(screen, './assets/splash/title.png')
 

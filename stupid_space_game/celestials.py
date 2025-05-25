@@ -2,7 +2,7 @@ from typing import Optional, List
 import pygame
 import math
 import stupid_space_game.graphics as graphics
-from stupid_space_game.constants import ORBITING_SPEED_FACTOR, SCREEN_WIDTH, SCREEN_HEIGHT
+import stupid_space_game.constants as game_constants
 
 BROAD_CHECK_COOLOFF = 100
 class CelestialEntity:
@@ -37,7 +37,7 @@ class CelestialEntity:
     def update(self) -> None:
         if self.orbit_parent is not None:
             # Update the orbit angle based on orbit speed
-            self.orbit_angle += ORBITING_SPEED_FACTOR*self.angular_velocity
+            self.orbit_angle += game_constants.ORBITING_SPEED_FACTOR*self.angular_velocity
             
             # Calculate the new position based on circular orbit
             # Using parametric equations for a circle: x = center_x + radius * cos(angle), y = center_y + radius * sin(angle)
@@ -50,7 +50,7 @@ class CelestialEntity:
             moon.update()
 
     def orbit_speed(self) -> float:
-        return self.angular_velocity * ORBITING_SPEED_FACTOR * self.orbit_radius
+        return self.angular_velocity * game_constants.ORBITING_SPEED_FACTOR * self.orbit_radius
 
     def orbit_velocity(self) -> pygame.math.Vector2:
         return pygame.math.Vector2(
@@ -103,9 +103,9 @@ class CelestialEntity:
 def is_on_screen_broad_check(celestial: CelestialEntity, buffer_size: int) -> bool:
     # Calculate the boundaries of the expanded screen area
     extended_min_x = 0 - buffer_size
-    extended_max_x = SCREEN_WIDTH + buffer_size
+    extended_max_x = game_constants.SCREEN_WIDTH + buffer_size
     extended_min_y = 0 - buffer_size
-    extended_max_y = SCREEN_HEIGHT + buffer_size    
+    extended_max_y = game_constants.SCREEN_HEIGHT + buffer_size    
 
     # Calculate the planet's bounding box edges
     planet_min_x = celestial.position.x - celestial.radius

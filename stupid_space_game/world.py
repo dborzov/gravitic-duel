@@ -1,12 +1,11 @@
 from typing import Optional, Tuple, List
 import pygame
 import stupid_space_game.graphics as graphics
-from stupid_space_game.constants import SOLAR_SYSTEM, ORBITING_SPEED_FACTOR, SCREEN_WIDTH, SCREEN_HEIGHT
+import stupid_space_game.constants as game_constants
 import math
 from stupid_space_game.celestials import CelestialEntity
 from stupid_space_game.rockets import Rocket
 import stupid_space_game.physics as physics
-from stupid_space_game.constants import DEFAULT_HP
 from stupid_space_game.ui import draw_fighter_ui
 
 class World:
@@ -14,18 +13,18 @@ class World:
         self._celestials: List[CelestialEntity] = []
         self._initialize_solar_system()
         self.rocket1 = Rocket(
-            x=SCREEN_WIDTH // 4,
-            y=2 * SCREEN_HEIGHT // 3,
+            x=game_constants.SCREEN_WIDTH // 4,
+            y=2 * game_constants.SCREEN_HEIGHT // 3,
             rotation=270,
         )
         self.rocket2 = Rocket(
-            x=3 * SCREEN_WIDTH // 4, 
-            y=1 * SCREEN_HEIGHT // 3,
+            x=3 * game_constants.SCREEN_WIDTH // 4, 
+            y=1 * game_constants.SCREEN_HEIGHT // 3,
             rotation=90,
         )
     
     def _initialize_solar_system(self):
-        star_data = SOLAR_SYSTEM['star']
+        star_data = game_constants.SOLAR_SYSTEM['star']
         star_radius = star_data['size'] // 2
         star_graphics = graphics.CelestialBodyGraphics(
             star_data['sprite_id'], 
@@ -40,7 +39,7 @@ class World:
         )
         self._celestials.append(self.star)
         
-        for planet_data in SOLAR_SYSTEM['planets']:
+        for planet_data in game_constants.SOLAR_SYSTEM['planets']:
             planet_radius = planet_data['size'] // 2
             planet_graphics = graphics.CelestialBodyGraphics(planet_data['sprite_id'], planet_radius)
             
@@ -100,10 +99,10 @@ class World:
         draw_fighter_ui(
             screen, 
             self.rocket1.hp, 
-            DEFAULT_HP, 
+            game_constants.DEFAULT_HP, 
             self.rocket1.mana,
             self.rocket2.hp, 
-            DEFAULT_HP,
+            game_constants.DEFAULT_HP,
             self.rocket2.mana)
 
 
