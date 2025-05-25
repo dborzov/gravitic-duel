@@ -1,13 +1,14 @@
-from stupid_space_game.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+import stupid_space_game.constants as game_constants
 import pygame
 import os
 from typing import List, Tuple, Optional
 import math
-def init_graphics() -> pygame.Surface:
+def init_graphics() -> Tuple[pygame.Surface, int, int]:
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN | pygame.NOFRAME)
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.NOFRAME)
     pygame.display.set_caption("Stupid Space Game")
-    return screen
+    width, height = screen.get_size()
+    return screen, width, height
 
 class CelestialBodyGraphics:
     def __init__(self, sprite_id: str, radius: int = 50) -> None:
@@ -75,7 +76,7 @@ class BackgroundGraphics:
     def __init__(self) -> None:
         background = pygame.image.load('./assets/background.png').convert()
         self.oscillation_amplitude = 500
-        self.background = pygame.transform.scale(background, (1000 + SCREEN_WIDTH,1000 + SCREEN_HEIGHT))
+        self.background = pygame.transform.scale(background, (1000 + game_constants.SCREEN_WIDTH,1000 + game_constants.SCREEN_HEIGHT))
         self.oscillation_angle = 0.01
 
     

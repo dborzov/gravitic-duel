@@ -1,5 +1,5 @@
 import pygame
-from stupid_space_game.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+import stupid_space_game.constants as game_constants
 
 GAME_FONT: pygame.font.Font = None
 LARGE_FONT: pygame.font.Font = None
@@ -150,7 +150,7 @@ def draw_fighter_ui(screen,
 
 def show_full_screen(screen, filepath):
     image = pygame.image.load(filepath)
-    image = pygame.transform.scale(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    image = pygame.transform.scale(image, (screen.get_width(), screen.get_height()))
     screen.blit(image, (0, 0))
     pygame.display.update()
     while True:
